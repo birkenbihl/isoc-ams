@@ -39,11 +39,13 @@ Install isoc-ams with pip.
 Print a list of ISOC members registered as chapter members.
 
 ```python
-import isoc-ams
+from isoc_ams import ISOC_AMS
+
+userid, password = "myuserid", "mysecret"
 
 # this will log you in
-# and instanciate an ISOC_AMS object
-ams = ISOC_AMS(userid, password, log=logfile)
+# and instantiate an ISOC_AMS object
+ams = ISOC_AMS(userid, password)
 
 # will read the list of members,
 # registered as chapters members
@@ -51,12 +53,13 @@ members = ams.build_members_list()
 
 for isoc_id, member in members.items():
     print(isoc_id,
-          member["firstname"],
-          member["lastname"],
+          member["first name"],
+          member["last name"],
           member["email"],
          )
+
 ```
-You may chose a webdriver of your choice (provided it is one of "firefox" or "chrome") by setting an environment variable SELENIUM_DRIVER e.g.:
+You may select a webdriver of your choice (provided it is one of "firefox" or "chrome") by setting an environment variable SELENIUM_DRIVER e.g.:
 ```bash
 SELENIUM_DRIVER=firefox
 ```
