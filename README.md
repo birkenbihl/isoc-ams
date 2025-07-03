@@ -64,4 +64,5 @@ You may select a webdriver of your choice (provided it is one of "firefox" or "c
 SELENIUM_DRIVER=firefox
 ```
 Recommended is  firefox.
+Recommended (and default) is "firefox".
 
