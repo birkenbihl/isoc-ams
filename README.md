@@ -63,6 +63,127 @@ You may select a webdriver of your choice (provided it is one of "firefox" or "c
 ```bash
 SELENIUM_DRIVER=firefox
 ```
-Recommended is  firefox.
 Recommended (and default) is "firefox".
 
+Since crazy things may happen it is important to keep track of what is going on. So ISOC_AMS lets you know what it is doing.
+by providing a logfile (goes to stdout by default).
+
+So this happens if we call the module with:
+```bash
+python -m isoc_ams
+```
+
+```
+Username: xxx
+Password: 
+
+AMS 2025-07-03 10:49:07 logging in
+AMS 2025-07-03 10:49:11 log in started
+AMS 2025-07-03 10:49:20 now on community portal
+AMS 2025-07-03 10:49:25 waiting for Chapter Leader portal
+AMS 2025-07-03 10:49:27 Chapter Leader portal OK
+
+
+AMS 2025-07-03 10:49:27 start build members list
+AMS 2025-07-03 10:49:27 Creating page for Members
+AMS 2025-07-03 10:49:33 Members page created
+AMS 2025-07-03 10:49:33 Loading Members
+AMS 2025-07-03 10:49:39 got list of Members
+AMS 2025-07-03 10:49:39 collecting the following fields: "ISOC-ID", "first name", "last name", "email"
+AMS 2025-07-03 10:49:39 Total (records expected): 38
+AMS 2025-07-03 10:49:39 Waiting for Total to stabilise
+AMS 2025-07-03 10:49:42 Total (records expected): 59
+AMS 2025-07-03 10:49:45 calling reader with 31 table rows,  (collected records so far: 0 )
+AMS 2025-07-03 10:49:50 calling reader with 32 table rows,  (collected records so far: 29 )
+AMS 2025-07-03 10:49:54 calling reader with 24 table rows,  (collected records so far: 53 )
+AMS 2025-07-03 10:49:55 records collected / total 59  / 59
+AMS 2025-07-03 10:49:55 Creating page for Member Contacts
+AMS 2025-07-03 10:50:00 Member Contacts page created
+AMS 2025-07-03 10:50:00 Loading Member Contacts
+AMS 2025-07-03 10:50:04 got list of Member Contacts
+AMS 2025-07-03 10:50:04 collecting the following fields: "action link" (for taking actions), "email" (to connect with members list)
+AMS 2025-07-03 10:50:04 Total (records expected): 8
+AMS 2025-07-03 10:50:04 Waiting for Total to stabilise
+AMS 2025-07-03 10:50:07 Total (records expected): 59
+AMS 2025-07-03 10:50:10 calling reader with 30 table rows,  (collected records so far: 0 )
+AMS 2025-07-03 10:50:14 calling reader with 31 table rows,  (collected records so far: 28 )
+AMS 2025-07-03 10:50:18 calling reader with 25 table rows,  (collected records so far: 51 )
+AMS 2025-07-03 10:50:18 records collected / total 59  / 59
+AMS 2025-07-03 10:50:18 members list finished
+
+
+AMS 2025-07-03 10:50:18 start build pending applications
+AMS 2025-07-03 10:50:18 Creating page for Pending Applications
+AMS 2025-07-03 10:50:22 collecting the following fields: "name", "email", "action link", "date"
+AMS 2025-07-03 10:50:24 Total (records expected): 8
+AMS 2025-07-03 10:50:24 Waiting for Total to stabilise
+AMS 2025-07-03 10:50:27 Total (records expected): 8
+AMS 2025-07-03 10:50:30 calling reader with 8 table rows,  (collected records so far: 0 )
+AMS 2025-07-03 10:50:31 records collected / total 8  / 8
+AMS 2025-07-03 10:50:31 pending application list finished
+
+
+MEMBERS
+1 ...
+2 ...
+...
+
+PENDING APPLICATIONS
+1 ...
+2 ...
+...
+```
+Normally isoc_ams wont show any browser output - running headless. To do debugging it might useful to follow the activities in the browser. If you call isoc_ams with a -h option the browser will open.
+
+## Using the API
+
+isoc_ams unleashes its full power when used as API to make things happen without human intervention. Check the file "isoc_de_ams_main.py" as an example for fully automatic synchronizing of local membership administration with AMS.
+
+Here an excerpt of the output:
+```
+Pending Applications:
+
+   the following pending applications will be approved:
+   ...
+   the following pending applications will be denied:
+   ...
+   the following pending applications will be invited:
+   ...
+   the following pending applications will be waiting:
+   ...
+
+Members:
+   the following members will be deleted from AMS:
+   ...
+   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):
+   ...
+   the following members are in sync
+   ...
+      
+AMS 2025-07-03 12:00:32 start delete ... from AMS Chapter members list
+   ...
+
+Dear MAS-support team,
+this is an automatic, complimentary Message from the ISOC German Chapter
+Members Administration System (ISOC.DE MAS).
+
+The following individuals are legally registered paying members
+of ISOC.DE - many of them for more than 25 years.
+...
+   Uwe Mayer, xxx@yyy.com (ISOC-ID=1234567)
+   ...
+   
+Thank you,
+Your ISOC.DE MAS support team
+...
+
+DEVIATIONS FROM EXPECTED RESULTS
+not deleted from members
+...
+not approved from pending applicants list
+...
+not removed from pending applicants list
+...
+```
+
+Have fun!
