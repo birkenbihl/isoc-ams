@@ -55,7 +55,7 @@ So this happens if we call the module with:
 python -m isoc_ams
 ```
 
-```bash
+```
 Username: xxx
 Password: 
 
@@ -115,6 +115,7 @@ PENDING APPLICATIONS
 2 ...
 ...
 ```
+
 Normally isoc_ams wont show any browser output - running headless. To do debugging it might useful to follow the activities in the browser. If you call isoc_ams with a -h option the browser will open.
 
 ## Using the API
@@ -122,7 +123,7 @@ Normally isoc_ams wont show any browser output - running headless. To do debuggi
 isoc_ams unleashes its full power when used as API to make things happen without human intervention. Check the file "isoc_de_ams_main.py" as an example for fully automatic synchronizing of local membership administration with AMS.
 
 Here an excerpt of the output:
-``` bash
+```
 Pending Applications:
 
    the following pending applications will be approved:
@@ -169,9 +170,3 @@ not removed from pending applicants list
 ```
 
 Have fun!
-
-
-
-
-
-
