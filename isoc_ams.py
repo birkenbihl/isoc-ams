@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 # -*- coding: utf-8 -*-
-"""Extract or modify Chapter Data of the ISOC AMS (Salesforce) Database
+
+"""Extract or modify Chapter Data of the ISOC AMS (Salesforce) Database.
 
 This module consists of a Class ISOC_AMS wrapping _ISOC_AMS which subclasses
 the webdriver.<browser> of Selenium. Up to now ownly firefox and chrome
@@ -39,8 +40,8 @@ E.g.
 
 Default is Firefox. Only Firefox and Chrome are allowed for now.
 
-Example:
-
+Example
+_______
     from isoc_ams import ISOC_AMS
     userid, password = "myuserid", "mysecret"
 
@@ -67,6 +68,8 @@ Example:
     print(difference_from_expected())
 
 """
+__version__ = "0.0.1"
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait, TimeoutException
@@ -77,8 +80,6 @@ import io
 import time
 import sys
 import os
-
-__version__ = "0.0.5"
 
 _dr = os.environ.get("ISOC_AMS_WEBDRIVER", "firefox").lower()
 
@@ -110,7 +111,7 @@ class ISOC_AMS:
     a browser window use headless=False.
 
     Args
-
+    ____
         user: username (email) for ISO.ORG login
         password: password for ISO.ORG login
         logfile: where to write ISOC_AMS log output
@@ -225,7 +226,7 @@ class ISOC_AMS:
     def deny_pending_applications(self,
                                   deny_list: list | dict | str | int,
                                   reason: str = "Timeout, did not apply"):
-        """Denies pending Members Chapter membership
+        """Denies pending Members Chapter membership.
 
         Args
         ----
@@ -248,7 +249,7 @@ class ISOC_AMS:
                                      "is not in pending applications list" )
 
     def difference_from_expected(self) -> dict:
-        """Compares intended outcome of operations with real outcome.
+        """Compare intended outcome of operations with real outcome.
 
         Returns
         -------
@@ -396,7 +397,7 @@ class _ISOC_AMS(Driver):
 
         self.log("now on community portal")
 
-        # copen hapter Leader Portal
+        # open chapter Leader Portal
         self.get("https://community.internetsociety.org/leader")
         self.log("waiting for Chapter Leader portal")
 
@@ -457,7 +458,7 @@ class _ISOC_AMS(Driver):
         return members
 
     def build_pending_applicants_list(self) -> dict:
-        """Collects the relevant dataabout members registered as chapters members
+        """Collect the relevant dataabout members registered as chapters members.
 
         Returns:
             A 2 level dictionary
@@ -788,20 +789,27 @@ class _ISOC_AMS(Driver):
 
 
 if __name__ == "__main__":
+    from getpass import getpass
+    headless = True
+    if "-h" in sys.argv:
+        headless=False
+    print("Username", end=":")
+    user_id = input()
+    password = getpass()
     ams = ISOC_AMS(
-        "klaus.birkenbihl@isoc.de",
-        "Xu%Ghoo5",
-        headless=True)
-    # members = ams.members_list
+        user_id,
+        password,
+        headless=headless)
+    members = ams.members_list
     pendings = ams.pending_applications_list
 
-    # print("\nMEMBERS")
-    # i = 0
-    # for k, v in members.items():
-    #     i += 1
-    #     print(i, k + ":", v["first name"], v["last name"], v["email"], v["action link"])
+    print("\nMEMBERS")
+    i = 0
+    for k, v in members.items():
+        i += 1
+        print(i, k + ":", v["first name"], v["last name"], v["email"], v["action link"])
 
-    print("\nPENDINGS")
+    print("\nPENDING APPLICATIONS")
     i = 0
     for k, v in pendings.items():
         i += 1

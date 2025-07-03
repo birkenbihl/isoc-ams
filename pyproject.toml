@@ -3,7 +3,7 @@ requires = ["flit_core >=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [project]
-name = "isoc-ams-klaus"
+name = "isoc-ams"
 dependencies = ["selenium>4"]
 authors = [
     {name = "Klaus Birkenbihl", email = "klaus.birkenbihl@isoc.de"}
