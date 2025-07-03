@@ -54,7 +54,7 @@ So this happens if we call the module with:
 ```bash
 python -m isoc_ams
 ```
-
+Output:
 ```
 Username: xxx
 Password: 
@@ -120,7 +120,7 @@ Normally isoc_ams wont show any browser output - running headless. To do debuggi
 
 ## Using the API
 
-isoc_ams unleashes its full power when used as API to make things happen without human intervention. Check the file "isoc_de_ams_main.py" as an example for fully automatic synchronizing of local membership administration with AMS.
+isoc_ams unleashes its full power when used as API to make things happen without human intervention. Check the file "[isoc_de_ams_main.py](https://github.com/birkenbihl/isoc-ams/blob/main/isoc_de_ams_main.py)" as an example for fully automatic synchronizing of local membership administration with AMS.
 
 Here an excerpt of the output:
 ```
@@ -168,6 +168,6 @@ not approved from pending applicants list
 not removed from pending applicants list
 ...
 ```
-See file isoc_ams.doc for doc on the API interface.
+See file [isoc_ams.doc](https://github.com/birkenbihl/isoc-ams/blob/main/isoc_ams.doc) for doc on the API interface.
 
 Have fun!
