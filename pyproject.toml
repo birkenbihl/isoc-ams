@@ -1,0 +1,26 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "isoc-ams-klaus"
+dependencies = ["selenium>4"]
+authors = [
+    {name = "Klaus Birkenbihl", email = "klaus.birkenbihl@isoc.de"}
+]
+maintainers = [
+    {name = "Klaus Birkenbihl"},
+]
+description = "A Python 3 module to cope with ISOC-AMS."
+readme = "README.md"
+license = {file = "LICENSE"}
+classifiers = [
+    "License :: OSI Approved :: MIT License"
+]
+dynamic = ["version"]
+
+[project.urls]
+Home = "https://github.com/birkenbihl/isoc-ams"
+
+[tool.flit.module]
+name = "isoc_ams"
