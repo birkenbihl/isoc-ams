@@ -168,5 +168,6 @@ not approved from pending applicants list
 not removed from pending applicants list
 ...
 ```
+See file isoc_ams.doc for doc on the API interface.
 
 Have fun!
