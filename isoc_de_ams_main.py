@@ -23,7 +23,7 @@ This app uses the isoc_de_ams module which provides the followin functions/prope
         send an invitation to people who applied, set new last_call
     mail_to_ams_support(list_of_members_to_add_to_ams)
         send a list of chapter members to be added to the ISOC.ORG AMS
-    
+
 """
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
@@ -112,7 +112,7 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
     print("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):")
     for k, v in members_operations["add"].items():
         print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-    print("\n   the following members are in sync:")
+    print("\n   the following locally registered members are in sync with AMS:")
     for k, v in members_operations["noop"].items():
         print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
 
