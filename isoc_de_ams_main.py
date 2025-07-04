@@ -1,9 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Thu Jun  5 15:51:28 2025.
 
-@author: klaus
 """local app to access the ISOC.ORG AMS system.
 This app uses the isoc_de_ams module which provides the followin functions/properties:
     members
@@ -23,10 +20,7 @@ This app uses the isoc_de_ams module which provides the followin functions/prope
         send an invitation to people who applied, set new last_call
     mail_to_ams_support(list_of_members_to_add_to_ams)
         send a list of chapter members to be added to the ISOC.ORG AMS
-
 """
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
 import isoc_de_ams as isoc_de  # this is an interface similar to isoc_ams (but lightning fast and reliable)
 from isoc_ams import ISOC_AMS  # the ISOC_AMS class will do the job
