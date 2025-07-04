@@ -1,19 +1,19 @@
 
 # isoc-ams
 
-A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This especially usefulfor ISOC Chapter Admins who want to synchronize their Chapter Database with AMS (semi)automatically.
+A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This especially useful for ISOC Chapter Admins who want to synchronize their Chapter Database with AMS (semi)automatically.
 
 After 10 years+  of sorrow, millions minutes of waiting for answers from the AMS web interface, tons of useless clicks, many (in fact) rejected requests to provide an API access: the author decided to build an API himself. Even if it might not be more than a demonstrator for the functionality needed. Anyhow (see below): for now it is running on a weekly basis doing a great job in avoiding manual work. 
 
 Unfortunately the constraints are severe:
-- access had to be through the web interface since this is the only interface provided. As a consequence it is slow, sometimes unreliable and hard to implement. At least there are working implementations of the "W3C webdriver" recommendtion. One of them is Selenium used for this project.
-- the existing web interface is far from being stable or guarateed. So changes to the web interface might spoil the whole project. There is great chance that few weeks from now a new "super dooper" AMS will be announced and as always after these announcements things will get worse.
+- access had to be through the web interface since this is the only interface provided. As a consequence it is slow, sometimes unreliable and hard to implement. At least there are working implementations of the "W3C web driver" recommendation. One of them is Selenium used for this project.
+- the existing web interface is far from being stable or guaranteed. So changes to the web interface might spoil the whole project. There is great chance that few weeks from now a new "super duper" AMS will be announced and as always after these announcements things will get worse.
 - tests are close to impossible. There is no such thing as a TEST AMS.
 
 Is there a possible good exit? Well, maybe some day soon - in 10 or 20 years if ISOC still exists - there will be an API provided by ISOC that makes this project obsolete. Or at least may be an all-mighty AI will step in. Let's dream on!
 
 ## Features
-ISOC maintains two main Lists that are relevant for the operation of this interface: 
+AMS maintains two main Lists that are relevant for the operation of this interface: 
 - a list of ISOC members registered as members of the Chapter
 - a list of ISOC members that applied for a Chapter membership.
   
@@ -116,7 +116,11 @@ PENDING APPLICATIONS
 ...
 ```
 
-Normally isoc_ams wont show any browser output - running headless. To do debugging it might useful to follow the activities in the browser. If you call isoc_ams with a -h option the browser will open.
+Normally isoc_ams wont show any browser output - running headless. To do debugging it might useful to follow the activities in the browser. If you call isoc_ams with a -h option like 
+```bash
+python -m isoc_ams -h
+```
+the browser will open and you can follow all activities real time.
 
 ## Using the API
 
@@ -140,19 +144,26 @@ Members:
    ...
    for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):
    ...
-   the following members are in sync
+   the following locally registered members are in sync with AMS:
    ...
       
 AMS 2025-07-03 12:00:32 start delete ... from AMS Chapter members list
    ...
 
 Dear MAS-support team,
+
 this is an automatic, complimentary Message from the ISOC German Chapter
 Members Administration System (ISOC.DE MAS).
 
+Assuming you are interested in making ISOC AMS consistent, the purpose
+of this message is to help you with valid, up-to-date data.
+
 The following individuals are legally registered paying members
-of ISOC.DE - many of them for more than 25 years.
-...
+of ISOC.DE - many of them for more than 25 years. They all are
+also registered as ISOC (global) members. Unfortunately they are
+not registered with AMS as members of ISOC.DE. Even more we are
+not authorized to fix this. So we forward this data to your attention:
+
    Uwe Mayer, xxx@yyy.com (ISOC-ID=1234567)
    ...
    
