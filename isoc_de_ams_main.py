@@ -4,6 +4,26 @@
 Created on Thu Jun  5 15:51:28 2025.
 
 @author: klaus
+"""local app to access the ISOC.ORG AMS system.
+This app uses the isoc_de_ams module which provides the followin functions/properties:
+    members
+        a list of registered members from the local membership administration system
+        items have the format (isoc-id, {firstname: ..., lastname: ..., email: ...})
+    applications
+        a list of people that have been invited for a chapter membership from the local administration system
+        items have the format (isoc-id, {firstname: ..., lastname: ..., email: ...})
+    in_negotiations
+        a list of people that have filled an application form for a chapter membership from the local administration system
+        items have the format (isoc-id, {firstname: ..., lastname: ..., email: ...})
+    ams_credentials
+        credentials needed to access the ISOC.ORG AMS
+    last_call
+        date of last sendout of invitations
+    invite(isoc-id, {firstname: ..., lastname: ..., email: ...})
+        send an invitation to people who applied, set new last_call
+    mail_to_ams_support(list_of_members_to_add_to_ams)
+        send a list of chapter members to be added to the ISOC.ORG AMS
+    
 """
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
