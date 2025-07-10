@@ -59,6 +59,10 @@ Output:
 Username: xxx
 Password: 
 
+********************************************
+AMS 2025-07-03 10:49:05 START
+********************************************
+
 AMS 2025-07-03 10:49:07 logging in
 AMS 2025-07-03 10:49:11 log in started
 AMS 2025-07-03 10:49:20 now on community portal
@@ -115,12 +119,72 @@ PENDING APPLICATIONS
 2 ...
 ...
 ```
-
+As you can see: building the list is rather tedious: reading the Table scroll it to find the end ... and for the members list - in order to get the links for actions - we have to build 2 tables ...
+### Running with arguments
 Normally isoc_ams won't show any browser output - running headless. To do debugging it might useful to follow the activities in the browser. If you call isoc_ams with a -h option like 
 ```bash
 python -m isoc_ams -h
 ```
 the browser will open and you can follow all activities real time.
+
+An argument -i tells the module that there will be (or is) input available with actions to execute. An argument -d  tells isoc_ams to make a dry run where actions are computed but not executed.
+
+Again an example:
+```bash
+python -m isoc_ams -i -d
+```
+Output:
+```
+Username: xxx
+Username:klaus.birkenbihl@isoc.de
+Password: 
+
+********************************************
+AMS 2025-07-09 16:25:06 START DRYRUN
+********************************************
+
+AMS 2025-07-09 16:25:06 logging in
+AMS 2025-07-09 16:25:09 log in started
+AMS 2025-07-09 16:25:17 now on community portal
+AMS 2025-07-09 16:25:21 waiting for Chapter Leader portal
+AMS 2025-07-09 16:25:21 Chapter Leader portal OK
+
+
+AMS 2025-07-09 16:25:21 start build members list
+...
+AMS 2025-07-09 16:26:12 records collected / total 58  / 58
+AMS 2025-07-09 16:26:12 members list finished
+
+
+AMS 2025-07-09 16:26:12 start build pending applications
+...
+AMS 2025-07-09 16:26:25 records collected / total 9  / 9
+AMS 2025-07-09 16:26:25 pending application list finished
+
+
+MEMBERS
+1 2217734 Johannes Piesepampel self@piesepampel.com
+...
+
+PENDING APPLICATIONS
+1 23232 Franz Piesepampel franz@piesepampel.com 2025-01-22
+2 22556 Abdul Piesepampel abdul@piesepampel.com 2025-03-21
+...
+READING COMMANDS:
+deny 23232 22556 123
+AMS 2025-07-09 18:17:51 Denied 2323284 Franz Piesepampel
+AMS 2025-07-09 18:17:51 Denied 2333463 Abdul Piesepampel
+*******************************************************************************
+AMS 2025-07-09 18:17:51 ISOC-ID 123 is not in pending applications list
+*******************************************************************************
+
+delete 2217734
+AMS 2025-07-09 18:18:29 Deleted 22842 Franz Piesepampel
+EOF of command input
+Deviations from expected results:
+Dryrun No results expected
+All results as expected
+```
 
 ## Using the API
 

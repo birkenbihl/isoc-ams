@@ -67,8 +67,13 @@ _______
     # check if all went well
     print(difference_from_expected())
 
+Changelog
+_________
+Version 0.2
+Allow input if executed as module
+Add dryrun to ISOC_AMS class
 """
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -116,21 +121,29 @@ class ISOC_AMS:
         password: password for ISO.ORG login
         logfile: where to write ISOC_AMS log output
         headless: run without GUI
-
+        dryrun: only check input, no actions
     """
 
     def __init__(self,
                  user: str,
                  password: str,
                  logfile: io.StringIO | str = sys.stdout,
-                 headless: bool = True):
+                 headless: bool = True,
+                 dryrun:  bool = False,):
         if _dr == "firefox" and headless:
             _options.add_argument("--headless")
         elif _dr == "chrome" and headless:
             _options.add_argument("--headless=new")
         self._members_list: dict | None = None
         self._pending_applications_list: dict | None = None
-        self._ams = _ISOC_AMS(user, password, logfile)
+        self._dryrun = dryrun
+        self._ams = _ISOC_AMS(logfile)
+        if self._dryrun:
+            self._ams.strong_msg("START DRYRUN")
+        else:
+            self._ams.strong_msg("START")
+        self._ams.login((user, password))
+
 
     @property
     def members_list(self) -> dict:
@@ -193,10 +206,15 @@ class ISOC_AMS:
         deletes delete_list entries from AMS-list of Chapter members
         """
         if type(delete_list) in (str, int):
-            delete_list = str(delete_list),
-        for deletee in delete_list:
+            delete_list = [delete_list]
+        for deletee in map(str, delete_list):
             if deletee in self._members_list:
-                self._ams.delete(self._members_list[deletee])
+                deletee = str(deletee)
+                if not self._dryrun:
+                    self._ams.delete(self._members_list[deletee])
+                self._ams.log("Deleted", deletee,
+                              self._members_list[deletee]["first name"],
+                              self._members_list[deletee]["last name"])
                 del self._members_list[deletee]
             else:
                 self._ams.strong_msg("ISOC-ID", deletee,
@@ -214,14 +232,17 @@ class ISOC_AMS:
         approves pending members on approve_list as Chapter members
         """
         if type(approve_list) in (int, str):
-            approve_list = str(approve_list),
-        for approvee in approve_list:
+            approve_list = [approve_list]
+        for approvee in map(str, approve_list):
             if approvee in self._pending_applications_list:
-                self._ams.approve(self._pending_applications_list[approvee])
+                if not self._dryrun:
+                    self._ams.approve(self._pending_applications_list[approvee])
+                self._ams.log("Approved", approvee,
+                              self._pending_applications_list[approvee]["name"])
                 del self._pending_applications_list[approvee]
             else:
                 self._ams.strong_msg("ISOC-ID", approvee,
-                                     "is not in pending applications list" )
+                                     "is not in pending applications list")
 
     def deny_pending_applications(self,
                                   deny_list: list | dict | str | int,
@@ -238,15 +259,18 @@ class ISOC_AMS:
 
         """
         if type(deny_list) in (str, int):
-            deny_list = str(deny_list),
-        for denyee in deny_list:
+            deny_list = [deny_list],
+        for denyee in map(str, deny_list):
             if denyee in self._pending_applications_list:
-                self._ams.deny(self._pending_applications_list[denyee],
-                                  reason)
+                if not self._dryrun:
+                    self._ams.deny(self._pending_applications_list[denyee],
+                                   reason)
+                self._ams.log("Denied", denyee,
+                              self._pending_applications_list[denyee]["name"])
                 del self._pending_applications_list[denyee]
             else:
                 self._ams.strong_msg("ISOC-ID", denyee,
-                                     "is not in pending applications list" )
+                                     "is not in pending applications list")
 
     def difference_from_expected(self) -> dict:
         """Compare intended outcome of operations with real outcome.
@@ -267,38 +291,43 @@ class ISOC_AMS:
             }
 
         """
-        self._ams.log(date=False)
-        self._ams.log("collect differences from expected result after operations")
+        if not self._dryrun:
 
-        not_deleted = {}
-        not_approved = {}
-        not_removed_from_pending = {}
-        new_members_list = self._ams.build_members_list()
-        for nm in new_members_list:
-            if nm not in self._members_list:
-                not_deleted[nm] = new_members_list[nm]
-        for nm in self._members_list:
-            if nm not in new_members_list:
-                not_approved[nm] = self._members_list[nm]
-        new_pending_applications_list = self._ams.build_pending_applicants_list()
-        for np in new_pending_applications_list:
-            if np not in self._pending_applications_list:
-                not_removed_from_pending[np] = new_pending_applications_list[np]
+            self._ams.log(date=False)
 
-        return {"not deleted from members": not_deleted,
-                "not approved from pending applicants list": not_approved,
-                "not removed from pending applicants list": not_removed_from_pending}
+            self._ams.strong_msg("we have to read the AMS Database tables again :(")
+            self._ams.log("... to find deviations from expected result after actions")
+
+            not_deleted = {}
+            not_approved = {}
+            not_removed_from_pending = {}
+            new_members_list = self._ams.build_members_list()
+            for nm in new_members_list:
+                if nm not in self._members_list:
+                    not_deleted[nm] = new_members_list[nm]
+            for nm in self._members_list:
+                if nm not in new_members_list:
+                    not_approved[nm] = self._members_list[nm]
+            new_pending_applications_list = self._ams.build_pending_applicants_list()
+            for np in new_pending_applications_list:
+                if np not in self._pending_applications_list:
+                    not_removed_from_pending[np] = new_pending_applications_list[np]
+
+            return {"not deleted from members": not_deleted,
+                    "not approved from pending applicants list": not_approved,
+                    "not removed from pending applicants list": not_removed_from_pending}
+        else:
+            return {"Dryrun": "No results expected"}
 
 class _ISOC_AMS(Driver):
 
-    def __init__(self, user: str, password: str, logfile: str = sys.stdout):
+    def __init__(self, logfile: str = sys.stdout):
 
         super().__init__(_options)
         self.windows = {}
         self.logfile = logfile
         if type(self.logfile) is str:
             self.logfile = open(self.log, "a")
-        self.login(user, password)
 
     def __del__(self):
         self.quit()
@@ -364,7 +393,7 @@ class _ISOC_AMS(Driver):
 # setup session, init windows
 #
 
-    def login(self, user: str, password: str):
+    def login(self, credentials):
         # Sign on user and navigate to the Chapter leaders page,
 
         self.log(date=False)
@@ -383,7 +412,7 @@ class _ISOC_AMS(Driver):
             "document.getElementById('signInName').value='%s';"
             "document.getElementById('password').value='%s';"
             "arguments[0].click();"
-            % (user, password),
+            % credentials,
             elem)
 
         # self.set_window_size(1600, 300)
@@ -792,14 +821,22 @@ if __name__ == "__main__":
     from getpass import getpass
     headless = True
     if "-h" in sys.argv:
-        headless=False
+        headless = False
+    inp = False
+    if "-i" in sys.argv:
+        inp = True
+    dryrun = False
+    if "-d" in sys.argv:
+        dryrun = True
+
     print("Username", end=":")
     user_id = input()
     password = getpass()
     ams = ISOC_AMS(
         user_id,
         password,
-        headless=headless)
+        headless=headless,
+        dryrun=dryrun)
     members = ams.members_list
     pendings = ams.pending_applications_list
 
@@ -807,12 +844,46 @@ if __name__ == "__main__":
     i = 0
     for k, v in members.items():
         i += 1
-        print(i, k + ":", v["first name"], v["last name"], v["email"], v["action link"])
+        print(i, k,  v["first name"], v["last name"], v["email"])
 
     print("\nPENDING APPLICATIONS")
     i = 0
     for k, v in pendings.items():
         i += 1
         # print(i, k, v)
-        print(i, k, v["name"], v["email"], v["action link"],
-              v["date"].isoformat()[:19])
+        print(i, k, v["name"], v["email"], v["date"].isoformat()[:10])
+
+    if inp:
+        print('READING COMMANDS:')
+        import re
+        patt = re.compile(r'(approve|deny|delete):?\s*([\d, ]+)')
+        func = {"approve": ams.approve_pending_applications,
+                "deny": ams.deny_pending_applications,
+                "delete": ams.delete_members
+                }
+        splitter = re.compile(r'[\s,]+')
+        for rec in sys.stdin:
+            if m := patt.match(rec):
+                command = m.group(1)
+                keys = splitter.split(m.group(2))
+                func[command](keys)
+            else:
+                print(rec, "contains an error")
+        print("EOF of command input")
+
+        devs = 0
+        for data in ams.difference_from_expected().items():
+            print("Deviations from expected results:")
+            print(data[0], end=" ")
+            if type(data[1]) is str:
+                print(data[1])
+            else:
+                if data[1]:
+                    devs = 1
+                    for k, v in data[1].items():
+                        if "members" in data[0]:
+                            print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
+                        else:
+                            print("        ", v["name"], v["email"], "("+k+")")
+            if devs == 0:
+                print("All results as expected")

@@ -16,6 +16,8 @@ This app uses the isoc_de_ams module which provides the followin functions/prope
         credentials needed to access the ISOC.ORG AMS
     last_call
         date of last sendout of invitations
+    ams_support
+        email of AMS support (default: amshelp@isoc.org)
     invite(isoc-id, {firstname: ..., lastname: ..., email: ...})
         send an invitation to people who applied, set new last_call
     mail_to_ams_support(list_of_members_to_add_to_ams)
@@ -24,8 +26,25 @@ This app uses the isoc_de_ams module which provides the followin functions/prope
 
 import isoc_de_ams as isoc_de  # this is an interface similar to isoc_ams (but lightning fast and reliable)
 from isoc_ams import ISOC_AMS  # the ISOC_AMS class will do the job
+import os
+from datetime import datetime
+
 
 global ams # the instatiation of the ISOC_AMS class.
+
+####################################################################
+# for tests we use this instead of the default amshelp@isoc.org
+isoc_de.ams_support = "klaus@zu-dumm.de"
+################################### test ###########################
+
+# we don't log to console if we run as cron job
+logfile = open(os.environ["HOME"] + "/isoc-ams-logs/" + \
+    datetime.now().date().isoformat() + ".log", "w")
+
+
+def log(*args, **kwargs):
+    print(*args, **kwargs, file=logfile)
+
 
 def process_pendings():  # process pending applications sorting them into 4 lists
     actions = {
@@ -72,60 +91,68 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
                                # headless controls weather the browser window will be opened
     global ams
 
-    ams = ISOC_AMS(*isoc_de.ams_credentials, headless=headless) # instantiate ISOC_AMS instance
+    ams = ISOC_AMS(*isoc_de.ams_credentials,
+                   headless=headless,
+                   logfile=logfile,
+                   dryrun=dryrun)                             # instantiate ISOC_AMS instance
     pendings_operations = process_pendings()                    # build lists for pending applications actions
     members_operations = process_members()                      # build lists for members actions
 
     #
     # print the lists for pending applications actions
     #
-    print("\nPending Applications:")
-    print("\n   the following pending applications will be approved:")
+    log("\nPending Applications:")
+    log("\n   the following pending applications will be approved:")
     for k, v in pendings_operations["approve"].items():
-        print("        ", v["name"], v["email"],
+        log("        ", v["name"], v["email"],
               v["date"].date().isoformat(), "("+k+")")
-    print("\n   the following pending applications will be denied:")
+    log("\n   the following pending applications will be denied:")
     for k, v in pendings_operations["deny"].items():
-        print("        ", v["name"], v["email"],
+        log("        ", v["name"], v["email"],
               v["date"].date().isoformat(), "("+k+")")
-    print("\n   the following pending applications will be invited:")
+    log("\n   the following pending applications will be invited:")
     for k, v in pendings_operations["invite"].items():
-        print("        ", v["name"], v["email"],
+        log("        ", v["name"], v["email"],
               v["date"].date().isoformat(), "("+k+")")
-    print("\n   the following pending applications will be waiting:")
+    log("\n   the following pending applications will be waiting:")
     for k, v in pendings_operations["noop"].items():
-        print("        ", v["name"], v["email"],
+        log("        ", v["name"], v["email"],
               v["date"].date().isoformat(), "("+k+")")
     #
     # print the lists for members actions
     #
-    print("\nMembers:")
-    print("\n   the following members will be deleted from AMS:")
+    log("\nMembers:")
+    log("\n   the following members will be deleted from AMS:")
     for k, v in members_operations["delete"].items():
-        print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-    print("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):")
+        log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
+    log("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):")
     for k, v in members_operations["add"].items():
-        print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-    print("\n   the following locally registered members are in sync with AMS:")
-    for k, v in members_operations["noop"].items():
-        print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
+        log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
+    log("\n   the following locally registered members are in sync with AMS:")
+    # too many to print ...
+    log("   ...")
+    # ... uncomment below if not
+    # for k, v in members_operations["noop"].items():
+    #     log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
 
     #
-    # operations on AMS system
+    # operations on AMS system (will handle dry runs on its own)
     #
-    if not dryrun:
-        if pendings_operations["approve"]:
-            ams.approve_pending_applications(pendings_operations["approve"])
+    if pendings_operations["approve"]:
+        ams.approve_pending_applications(pendings_operations["approve"])
 
-        if pendings_operations["deny"]:
-            ams.deny_pending_applications(pendings_operations["deny"])
+    if pendings_operations["deny"]:
+        ams.deny_pending_applications(pendings_operations["deny"])
 
-        if members_operations["delete"]:
-            ams.delete_members(members_operations["delete"])
+    if members_operations["delete"]:
+        ams.delete_members(members_operations["delete"])
 
     #
     # other operations
     #
+
+    if not dryrun:
+
         if pendings_operations["invite"]:
             for k, v in pendings_operations["invite"].items():
                 isoc_de.invite(k, v)            # send an invitation mail
@@ -137,21 +164,24 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
     #
     # check if AMS operations had the expected result
     #
-        r = ams.difference_from_expected()  # returns 3 lists - after an unreasonable time again:
-                                            # not deleted from members
-                                            # not approved from pending applicants list": not_approved,
-                                            # not removed from pending applicants list"
+    r = ams.difference_from_expected()  # returns 3 lists - after an unreasonable time again:
+                                        # not deleted from members
+                                        # not approved from pending applicants list": not_approved,
+                                        # not removed from pending applicants list"
         # if these lists are empty - we are done
         # otherwise here is what went wrong
-        print("\nDEVIATIONS FROM EXPECTED RESULTS")
-        for g, l in r.items():
-            print(g)
-            for k, v in l.items():
-                if "members" in g:
-                    print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-                else:
-                    print("        ", v["name"], v["email"], "("+k+")")
 
+    for data in r.items():
+        log(data[0], end=" ")
+        if type(data[1]) is str:
+            log(data[1])
+        else:
+            log()
+            for k, v in data[1].items():
+                if "members" in data[0]:
+                    log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
+                else:
+                    log("        ", v["name"], v["email"], "("+k+")")
 
 if __name__ == "__main__":
     import sys
@@ -173,9 +203,9 @@ if __name__ == "__main__":
         headless = True
 
     if len(sys.argv) > maxargs:
-        print("usage:", sys.argv[0], "[-d | --dry] [-h | --head]")
-        print("      ", "-d | --dry   dry run")
-        print("      ", "-h | --head  don't run headless")
+        log("usage:", sys.argv[0], "[-d | --dry] [-h | --head]")
+        log("      ", "-d | --dry   dry run")
+        log("      ", "-h | --head  don't run headless")
 
     else:
         main(dryrun, headless)
