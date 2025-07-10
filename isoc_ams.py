@@ -184,6 +184,7 @@ class ISOC_AMS:
                      {"name": <name>,
                       "email": <Email address>',
                       "action link": <url of page to edit this entry>
+                      "date": <date of application>
                      },
                   ...
                  }
