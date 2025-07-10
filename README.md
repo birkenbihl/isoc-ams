@@ -1,7 +1,7 @@
 
 # isoc-ams
 
-A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This especially useful for ISOC Chapter Admins who want to synchronize their Chapter Database with AMS (semi)automatically.
+A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their Chapter Database with AMS (semi)automatically.
 
 After 10 years+  of sorrow, millions minutes of waiting for answers from the AMS web interface, tons of useless clicks, many (in fact) rejected requests to provide an API access: the author decided to build an API himself. Even if it might not be more than a demonstrator for the functionality needed. Anyhow (see below): for now it is running on a weekly basis doing a great job in avoiding manual work. 
 
@@ -48,7 +48,7 @@ ISOC_AMS_WEBDRIVER=firefox
 Recommended (and default) is "firefox".
 
 Since crazy things may happen it is important to keep track of what is going on. So ISOC_AMS lets you know what it is doing.
-by providing a logfile (goes to stdout by default).
+by providing a logfile (goes to stdout by default). After running it some time now it seems to work better than expected. 🙂
 
 So this happens if we call the module with:
 ```bash
@@ -173,15 +173,15 @@ READING COMMANDS:
 ```
 *`  deny 23232 22556 123`*
 ```
-AMS 2025-07-09 18:17:51 Denied 2323284 Franz Piesepampel
-AMS 2025-07-09 18:17:51 Denied 2333463 Abdul Piesepampel
+AMS 2025-07-09 18:17:51 Denied 23232 Franz Piesepampel
+AMS 2025-07-09 18:17:51 Denied 22556 Abdul Piesepampel
 *******************************************************************************
 AMS 2025-07-09 18:17:51 ISOC-ID 123 is not in pending applications list
 *******************************************************************************
 ```
 *`  delete 2217734`*
 ```
-AMS 2025-07-09 18:18:29 Deleted 22842 Franz Piesepampel
+AMS 2025-07-09 18:18:29 Deleted 2217734 Johannes Piesepampel
 EOF of command input
 Deviations from expected results:
 Dryrun No results expected
