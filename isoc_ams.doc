@@ -17,10 +17,6 @@ DESCRIPTION
     these properties are initialized on first access ... and it will take time
     
     The ISOC_AMS class provides the following methods:
-        build_members_list:
-            to build a list of Chapter members with data (and links)
-        build_pending_applicants_list:
-            to build a list of pending appplicants for a Chapter membership with data (and links)
         deny_applicants:
             to deny Chapter membership for a list of applicants
         approve_applicants:
@@ -98,9 +94,6 @@ CLASSES
      |      dryrun: only check input, no actions
      |  
      |  Methods defined here:
-     |  
-     |  __init__(self, user: str, password: str, logfile: _io.StringIO | str = <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>, headless: bool = True, dryrun: bool = False)
-     |      Initialize self.  See help(type(self)) for accurate signature.
      |  
      |  approve_pending_applications(self, approve_list: list | dict | str | int)
      |      Approve pending Members as Chapter members.
@@ -187,6 +180,7 @@ CLASSES
      |                   {"name": <name>,
      |                    "email": <Email address>',
      |                    "action link": <url of page to edit this entry>
+     |                    "date": <date of application>
      |                   },
      |                ...
      |               }
