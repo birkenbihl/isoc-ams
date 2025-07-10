@@ -136,7 +136,6 @@ python -m isoc_ams -i -d
 Output:
 ```
 Username: xxx
-Username:klaus.birkenbihl@isoc.de
 Password: 
 
 ********************************************
@@ -171,14 +170,17 @@ PENDING APPLICATIONS
 2 22556 Abdul Piesepampel abdul@piesepampel.com 2025-03-21
 ...
 READING COMMANDS:
-deny 23232 22556 123
+```
+*`  deny 23232 22556 123`*
+```
 AMS 2025-07-09 18:17:51 Denied 2323284 Franz Piesepampel
 AMS 2025-07-09 18:17:51 Denied 2333463 Abdul Piesepampel
 *******************************************************************************
 AMS 2025-07-09 18:17:51 ISOC-ID 123 is not in pending applications list
 *******************************************************************************
-
-delete 2217734
+```
+*`  delete 2217734`*
+```
 AMS 2025-07-09 18:18:29 Deleted 22842 Franz Piesepampel
 EOF of command input
 Deviations from expected results:
