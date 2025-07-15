@@ -4,87 +4,104 @@
 
 """Extract or modify Chapter Data of the ISOC AMS (Salesforce) Database.
 
-This module consists of a Class ISOC_AMS wrapping _ISOC_AMS which subclasses
-the webdriver.<browser> of Selenium. Up to now ownly firefox and chrome
-drivers are implemented and tested.
+DESCRIPTION
 
-The ISOC_AMS class provides the following properties:
-    members_list:
-        a list of Chapter members (according to AMS) with data (and links)
-    pending_applicants_list:
-        a list of pending appplicants  (according to AMS) for a Chapter
-        membership with data (and links)
-these properties are initialized on first access ... and it will take time
+    This module consists of a Class ISOC_AMS wrapping _ISOC_AMS which subclasses
+    the webdriver.<browser> of Selenium. Up to now ownly firefox and chrome
+    drivers are implemented and tested.
 
-The ISOC_AMS class provides the following methods:
-    build_members_list:
-        to build a list of Chapter members with data (and links)
-    build_pending_applicants_list:
-        to build a list of pending appplicants for a Chapter membership with data (and links)
-    deny_applicants:
-        to deny Chapter membership for a list of applicants
-    approve_applicants:
-        to approve Chapter membership for a list of applicants
-    delete_members:
-        to revoke Chapter membership for members from the members list
-    difference_from_expected:
-        to reread AMS and check if all operations were successfull (not ever
-        problem can be detected by the methods)
+CLASS
+    PROPERTIES
+        The ISOC_AMS class provides the following properties:
+            members_list:
+                a list of Chapter members (according to AMS) with data (and links)
+            pending_applicants_list:
+                a list of pending appplicants  (according to AMS) for a Chapter
+                membership with data (and links)
+        these properties are initialized after login ... and this will take time
 
-ISOC_AMS will log you in to ISOC.ORG and check your authorization at
-instantiation.
+    METHODS
+        The ISOC_AMS class provides the following methods:
+            build_members_list:
+                to build a list of Chapter members with data (and links)
+            build_pending_applicants_list:
+                to build a list of pending appplicants for a Chapter membership with
+                data (and links)
+            deny_applicants:
+                to deny Chapter membership for a list of applicants
+            approve_applicants:
+                to approve Chapter membership for a list of applicants
+            delete_members:
+                to revoke Chapter membership for members from the members list
+            difference_from_expected:
+                to reread AMS and check if all operations were successfull (not ever
+                problem can be detected by the methods)
 
-To select a webdriver, an ISOC_AMS_WEBDRIVER environment variable can be used.
-E.g.
-    ISOC_AMS_WEBDRIVER=Firefox
+    ISOC_AMS will log you in to ISOC.ORG and check your authorization at
+    instantiation.
 
-Default is Firefox. Only Firefox and Chrome are allowed for now.
+    To select a webdriver, an ISOC_AMS_WEBDRIVER environment variable can be used.
+    E.g.
+        ISOC_AMS_WEBDRIVER=Firefox
 
-Example
-_______
-    from isoc_ams import ISOC_AMS
-    userid, password = "myuserid", "mysecret"
+    Default is Firefox. Only Firefox and Chrome are allowed for now.
 
-    # this will log you in
-    # and instantiate an ISOC_AMS object
-    ams = ISOC_AMS(userid, password)
+FUNCTIONS
+    3 functions are provided to support logging:
+        log, dlog, strong_message
+    (see below)
 
-    # this will read the list of members,
-    # registered as chapters members
-    members = ams.members_list
+EXAMPLE
 
-    # print the results
-    for isoc_id, member in members.items():
-        print(isoc_id,
-              member["first name"],
-              member["last name"],
-              member["email"],
-             )
-    # select members to be deleted
-    deletees = <...>  # various formats are allowed for operation methods
-    delete_members(deletees)
+        from isoc_ams import ISOC_AMS
+        userid, password = "myuserid", "mysecret"
 
-    # check if all went well
-    print(difference_from_expected())
+        # this will log you in
+        # and instantiate an ISOC_AMS object
+        ams = ISOC_AMS(userid, password)
 
-Changelog
-_________
-Version 0.2
-Allow input if executed as module
-Add dryrun to ISOC_AMS class
+        # this will read the list of members,
+        # registered as chapters members
+        members = ams.members_list
+
+        # print the results
+        for isoc_id, member in members.items():
+            print(isoc_id,
+                  member["first name"],
+                  member["last name"],
+                  member["email"],
+                 )
+        # select members to be deleted
+        deletees = <...>  # various formats are allowed for operation methods
+        delete_members(deletees)
+
+        # check if all went well
+        difference_from_expected()
+
+CHANGELOG
+    Version 0.0.2
+        Allow input if executed as module
+        Add dryrun to ISOC_AMS class
+    Version 0.1.0
+        Improved logging
+        minor bug fixes
 """
-__version__ = "0.0.2"
+__version__ = "0.1.0"
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait, TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
+import logging
 
 import io
 import time
 import sys
 import os
+
+_logger = logging.getLogger("AMS")
+_logger.setLevel(logging.DEBUG)
 
 _dr = os.environ.get("ISOC_AMS_WEBDRIVER", "firefox").lower()
 
@@ -104,22 +121,98 @@ def _WaitForTextInElement(element):
         return element.text
     return _predicate
 
+#
+# logging
+#
+
+def _init_logging(logfile, debuglog):
+
+    _logger.normalLogFormat = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s',
+                                               '%Y-%m-%d %H:%M:%S')
+    _logger.blankLogFormat = logging.Formatter('%(message)s')
+
+    if type(logfile) is str:
+        lfh = logging.FileHandler(logfile)
+    elif isinstance(logfile, io.TextIOBase):
+        lfh = logging.StreamHandler(logfile)
+    elif logfile is None:
+        lfh = logging.NullHandler()
+    lfh.setLevel(logging.INFO)
+    lfh.setFormatter(_logger.normalLogFormat)
+    _logger.addHandler(lfh)
+
+    if type(debuglog) is str:
+        dlh = logging.FileHandler(debuglog)
+    elif isinstance(debuglog, io.TextIOBase):
+        dlh = logging.StreamHandler(debuglog)
+    elif debuglog is None:
+        dlh = logging.NullHandler()
+    dlh.setLevel(logging.DEBUG)
+    dlh.setFormatter(_logger.normalLogFormat)
+    _logger.addHandler(dlh)
+
+#
+# utilities
+#
+
+def log(*args, date: bool = True, level: int = logging.INFO):
+    """Write to log.
+
+ARGUMENTS
+        args: tuple of message parts
+        level: logging level
+        date: if False ommit time and level info in logrecord
+    """
+    if len(args) > 0:
+        msg = (len(args) * "%s ") % args
+    else:
+        msg = ""
+    if date:
+        _logger.log(level, msg)
+    else:
+        for h in _logger.handlers:
+            h.setFormatter(_logger.blankLogFormat)
+        _logger.log(level, msg)
+        for h in _logger.handlers:
+            h.setFormatter(_logger.normalLogFormat)
+
+def dlog(*args, date: bool = True):
+    """ Short for log(*args, date=True, level=logging.DEBUG)."""
+    log(*args, date=True, level=logging.DEBUG)
+
+def strong_msg(*args, date: bool = True, level: int = logging.INFO):
+    """Write to log emphasized message.
+
+ARGUMENTS
+        args: tuple of message parts
+        level: logging level
+        date: if False ommit time and level info in logrecord
+    """
+    x = 0
+    for t in args:
+        x += len(str(t)) + 1
+    x = x + 1 + 30
+    log("\n" + x * "*", date=False, level=level)
+    log(*args, date=date, level=level)
+    log(x * "*", date=False, level=level)
+
+
 
 class ISOC_AMS:
     """Perform admin operations on a Chaper's members list stored in AMS.
 
-    Since it is about web driving the activities on the website are logged
-    to check what's going on (on the Website)'. Default is logging to
-    stdout.
+DESCRIPTION
+
+    This is the main class to interface with the ISOC-AMS system.
 
     By default all operations run headless. If you want to follow it on
     a browser window use headless=False.
 
-    Args
-    ____
+ARGUMENTS
         user: username (email) for ISO.ORG login
         password: password for ISO.ORG login
-        logfile: where to write ISOC_AMS log output
+        logfile: where to write ISOC_AMS info-log output
+        debuglog: where to write ISOC_AMS debug-level log output
         headless: run without GUI
         dryrun: only check input, no actions
     """
@@ -127,33 +220,35 @@ class ISOC_AMS:
     def __init__(self,
                  user: str,
                  password: str,
-                 logfile: io.StringIO | str = sys.stdout,
+                 logfile: io.TextIOBase | str | None = sys.stdout,
+                 debuglog: io.TextIOBase | str | None = None,
                  headless: bool = True,
                  dryrun:  bool = False,):
         if _dr == "firefox" and headless:
             _options.add_argument("--headless")
         elif _dr == "chrome" and headless:
             _options.add_argument("--headless=new")
-        self._members_list: dict | None = None
-        self._pending_applications_list: dict | None = None
         self._dryrun = dryrun
-        self._ams = _ISOC_AMS(logfile)
+        _init_logging(logfile, debuglog)
+        self._ams = _ISOC_AMS()
         if self._dryrun:
-            self._ams.strong_msg("START DRYRUN")
+            strong_msg("START DRYRUN")
         else:
-            self._ams.strong_msg("START")
+            strong_msg("START")
         self._ams.login((user, password))
+        self._members_list = self._ams.build_members_list()
+        self._pending_applications_list = self._ams.build_pending_applicants_list()
 
 
     @property
     def members_list(self) -> dict:
         """Collects data about Chapter members.
 
+DESCRIPTION
         Collects the relevant data about ISOC members
         registered as Chapter members in AMS
 
-        Returns
-        -------
+RETURNS
             dictionary with the following scheme:
                 {<ISOC-ID>:
                      {"first name": <first name>,
@@ -164,21 +259,19 @@ class ISOC_AMS:
                   ...
                  }
 
-        So ISOC-ID is used as key for the entries
+ISOC-ID are used as keys for the entries
         """
-        if self._members_list is None:
-            self._members_list = self._ams.build_members_list()
         return self._members_list
 
     @property
     def pending_applications_list(self) -> dict:
-        """Collects data about pending Chapter applicants.
+        """Collects data about pending Chapter applications.
 
+DESCRIPTION
         Collects the relevant data about pending Chapter applicants
         registered as pending Chapter applicants in AMS
 
-        Returns
-        -------
+RETURNS
             dictionary with the following scheme:
                 {<ISOC-ID>:
                      {"name": <name>,
@@ -189,22 +282,19 @@ class ISOC_AMS:
                   ...
                  }
         ---------------------------------------------
-        So ISOC-ID is used as key for the entries
+ISOC-ID are used as keys for the entries
         """
-        if self._pending_applications_list is None:
-            self._pending_applications_list = \
-                self._ams.build_pending_applicants_list()
         return self._pending_applications_list
 
     def delete_members(self, delete_list: list | dict | str | int):
         """Delete Member(s) from AMS-list of Chapter members.
 
-        Args
-        ----
-            delete_list: list of dict-entrys, or ISOC-IDs, or single entry
-                         or ISOC-ID
+DESCRIPTION
+    deletes delete_list entries from AMS-list of Chapter members
 
-        deletes delete_list entries from AMS-list of Chapter members
+ARGUMENTS
+        delete_list: list of dict-entrys, or ISOC-IDs, or single entry
+                         or an ISOC-ID
         """
         if type(delete_list) in (str, int):
             delete_list = [delete_list]
@@ -213,51 +303,58 @@ class ISOC_AMS:
                 deletee = str(deletee)
                 if not self._dryrun:
                     self._ams.delete(self._members_list[deletee])
-                self._ams.log("Deleted", deletee,
-                              self._members_list[deletee]["first name"],
-                              self._members_list[deletee]["last name"])
+                log("Deleted", deletee,
+                    self._members_list[deletee]["first name"],
+                    self._members_list[deletee]["last name"])
                 del self._members_list[deletee]
             else:
-                self._ams.strong_msg("ISOC-ID", deletee,
-                                     "is not in AMS Chapter members list" )
+                log("ISOC-ID", deletee,
+                    "is not in AMS Chapter members list",
+                    level=logging.ERROR)
 
 
     def approve_pending_applications(self, approve_list: list | dict | str | int):
         """Approve pending Members as Chapter members.
 
-        Args
-        ----
-            approve_list: list of dict-entrys, or ISOC-IDs, or single entry
-                          or ISOC-ID
+DESCRIPTION
+    approves pending members on approve_list as Chapter members
 
-        approves pending members on approve_list as Chapter members
+ARGUMENTS
+        approve_list: list of dict-entrys, or ISOC-IDs, or single entry
+                          or ISOC-ID
         """
         if type(approve_list) in (int, str):
             approve_list = [approve_list]
         for approvee in map(str, approve_list):
             if approvee in self._pending_applications_list:
-                if not self._dryrun:
-                    self._ams.approve(self._pending_applications_list[approvee])
-                self._ams.log("Approved", approvee,
-                              self._pending_applications_list[approvee]["name"])
-                del self._pending_applications_list[approvee]
+                if approvee not in self._members_list:
+                    if not self._dryrun:
+                        self._ams.approve(self._pending_applications_list[approvee])
+                    log("Approved", approvee,
+                        self._pending_applications_list[approvee]["name"])
+                    del self._pending_applications_list[approvee]
+                else:
+                    log(self._pending_applications_list[approvee]["name"],
+                        approvee,
+                        "not approved - is already registered as member",
+                        level=logging.ERROR)
             else:
-                self._ams.strong_msg("ISOC-ID", approvee,
-                                     "is not in pending applications list")
+                log("ISOC-ID", approvee,
+                    "is not in pending applications list",
+                    level=logging.ERROR)
 
     def deny_pending_applications(self,
                                   deny_list: list | dict | str | int,
                                   reason: str = "Timeout, did not apply"):
         """Denies pending Members Chapter membership.
 
-        Args
-        ----
+DESCRIPTION
+    denies Chapter membership for members on deny_list
+
+ARGUMENTS
             deny_list: list of dict-entrys, or ISOC-IDs, or single entry
                        or ISOC-ID
-            reason: All denied applicants are denied for
-
-        denies Chapter membership for members on deny_list
-
+            reason: All denied applicants have to be denied for a reason
         """
         if type(deny_list) in (str, int):
             deny_list = [deny_list],
@@ -266,19 +363,23 @@ class ISOC_AMS:
                 if not self._dryrun:
                     self._ams.deny(self._pending_applications_list[denyee],
                                    reason)
-                self._ams.log("Denied", denyee,
+                log("Denied", denyee,
                               self._pending_applications_list[denyee]["name"])
                 del self._pending_applications_list[denyee]
             else:
-                self._ams.strong_msg("ISOC-ID", denyee,
-                                     "is not in pending applications list")
+                log("ISOC-ID", denyee,
+                    "is not in pending applications list",
+                    level=logging.ERROR)
 
-    def difference_from_expected(self) -> dict:
+    def difference_from_expected(self, test=None) -> dict | str:
         """Compare intended outcome of operations with real outcome.
 
-        Returns
-        -------
-        A dict containing deviations of the inteded outcome:
+DESCRIPTION
+    Compares the contents of the ISOC-AMS database with the expected result of
+    operations
+
+RETURNS
+    A dict containing deviations of the inteded outcome:
             {
                 "not deleted from members":
                     All entries in AMS-Chapter-Members that were supposed
@@ -290,35 +391,57 @@ class ISOC_AMS:
                     All entries in pending applications that should be
                     removed - either since approved or since denied
             }
-
+    Or a string with the result of the comoarision.
         """
         if not self._dryrun:
 
-            self._ams.log(date=False)
+            log(date=False)
 
-            self._ams.strong_msg("we have to read the AMS Database tables again :(")
-            self._ams.log("... to find deviations from expected result after actions")
+            strong_msg("Check if actions ended up in AMS database")
+            log("we have to read the AMS Database tables again to find deviations from expected result after actions :(")
+            log("", date=False)
 
             not_deleted = {}
             not_approved = {}
             not_removed_from_pending = {}
             new_members_list = self._ams.build_members_list()
+            dlog("Check members list")
             for nm in new_members_list:
                 if nm not in self._members_list:
+                    dlog(new_members_list[nm]["first name"],
+                         new_members_list[nm]["last name"],
+                         "("+nm+")",
+                         "was not deleted")
                     not_deleted[nm] = new_members_list[nm]
             for nm in self._members_list:
                 if nm not in new_members_list:
+                    dlog(self._members_list[nm]["first name"],
+                         self._members_list[nm]["last name"],
+                         "("+nm+")",
+                         "was not approved")
                     not_approved[nm] = self._members_list[nm]
             new_pending_applications_list = self._ams.build_pending_applicants_list()
             for np in new_pending_applications_list:
                 if np not in self._pending_applications_list:
+                    dlog(self._members_list[nm]["name"],
+                         "("+nm+")",
+                         "was not removed from pending aoolications")
                     not_removed_from_pending[np] = new_pending_applications_list[np]
 
-            return {"not deleted from members": not_deleted,
-                    "not approved from pending applicants list": not_approved,
-                    "not removed from pending applicants list": not_removed_from_pending}
+            result = {}
+            if not_deleted:
+                result["not deleted from members"] = not_deleted
+            if not_approved:
+                result["not approved from pending applicants list"] = not_approved
+            if not_removed_from_pending:
+                result["not removed from pending applicants list"] = not_removed_from_pending
+            if not result:
+                result = "everything OK"
+                dlog(result)
+            return result
         else:
-            return {"Dryrun": "No results expected"}
+            dlog("DRYRUN: No results expected")
+            return "Dryrun: No results expected"
 
 class _ISOC_AMS(Driver):
 
@@ -326,41 +449,13 @@ class _ISOC_AMS(Driver):
 
         super().__init__(_options)
         self.windows = {}
-        self.logfile = logfile
-        if type(self.logfile) is str:
-            self.logfile = open(self.log, "a")
 
     def __del__(self):
         self.quit()
 
-#
-# utilities
-#
-
-    def log(self, *args, date=True, **kwargs):
-        if date:
-            print("AMS", datetime.now().isoformat(" ", timespec="seconds"),
-                  *args,
-                  file=self.logfile,
-                  **kwargs)
-        else:
-            print(
-                  *args,
-                  file=self.logfile,
-                  **kwargs)
-
-    def strong_msg(self, *args, **kwargs):
-        x = 0
-        for t in args:
-            x += len(str(t)) + 1
-        x = x + 1 + 30
-        self.log("\n" + x * "*", date=False)
-        self.log(*args, **kwargs)
-        self.log(x * "*", date=False)
-
     def activate_window(self, name: str, url: str | None = None, refresh: bool = False):
         if self.windows.get(name):
-            # self.log("switching to window", name)
+            dlog("switching to window", name)
             self.switch_to.window(self.windows[name])
             if refresh:
                 self.navigate().refresh()
@@ -368,7 +463,7 @@ class _ISOC_AMS(Driver):
                 self.get(url)
             return True
         elif url:
-            # self.log("switching to NEW window", name)
+            dlog("switching to NEW window", name)
             self.switch_to.new_window('tab')
             self.windows[name] = self.current_window_handle
             self.get(url)
@@ -387,7 +482,7 @@ class _ISOC_AMS(Driver):
                 elem = WebDriverWait(self, timeout).until(cond)
             return elem
         except TimeoutException:
-            self.strong_msg(message)
+            strong_msg(message, level=logging.ERROR)
             raise
 
 #
@@ -397,8 +492,8 @@ class _ISOC_AMS(Driver):
     def login(self, credentials):
         # Sign on user and navigate to the Chapter leaders page,
 
-        self.log(date=False)
-        self.log("logging in")
+        log(date=False)
+        log("logging in")
 
         # go to community home page after succesfullogin
         self.get("https://community.internetsociety.org/s/home-community")
@@ -417,19 +512,31 @@ class _ISOC_AMS(Driver):
             elem)
 
         # self.set_window_size(1600, 300)
-        self.log("log in started")
+        dlog("log in started")
         # community portal
-        self.waitfor(EC.presence_of_element_located,
-                     "siteforceStarterBody",
-                     by=By.CLASS_NAME,
-                     message="timelimit exceeded while waiting "
-                     "for Community portal to open")
+        # self.waitfor(EC.presence_of_element_located,
+        #              "siteforceStarterBody",
+        #              by=By.CLASS_NAME,
+        #              message=)
 
-        self.log("now on community portal")
+        try:
+            elem = WebDriverWait(self, 10).until(
+                EC.any_of(
+                  EC.presence_of_element_located((By.CLASS_NAME, "siteforceStarterBody")),
+                  EC.visibility_of_element_located((By.CSS_SELECTOR, "form div.error p"))))
+        except TimeoutException:
+            strong_msg("timelimit exceeded while waiting "
+                       "for Community portal to open", level=logging.ERROR)
+            raise
+        if elem.tag_name == "p":
+            strong_msg(elem.text, level=logging.ERROR)
+            exit(1)
+
+        dlog("now on community portal")
 
         # open chapter Leader Portal
         self.get("https://community.internetsociety.org/leader")
-        self.log("waiting for Chapter Leader portal")
+        dlog("waiting for Chapter Leader portal")
 
         # look if menue appears to be ready (and grab link to reports page)
         reports_ref = self.waitfor(EC.element_to_be_clickable,
@@ -449,8 +556,8 @@ class _ISOC_AMS(Driver):
             )
 
         self.windows["leader"] = self.current_window_handle
-        self.log("Chapter Leader portal OK")
-        self.log(date=False)
+        log("Now on Chapter Leader portal")
+        log(date=False)
 
         # get lists (in an extra "reports" tab)
         self.reports_link = reports_ref.get_attribute('href')
@@ -469,8 +576,8 @@ class _ISOC_AMS(Driver):
         # reason is Active Chapter Members doesn't give us the link to
         # act on the list (to delete members)
 
-        self.log(date=False)
-        self.log("start build members list")
+        log(date=False)
+        log("start build members list")
         self.create_report_page("Members",
                                 "Active Chapter Members")
         self.load_report("Members")
@@ -483,8 +590,8 @@ class _ISOC_AMS(Driver):
 
         for k, v in members.items():
             v["action link"] = contacts.get(v["email"])
-        self.log("members list finished")
-        self.log(date=False)
+        log("members list finished / ", len(members), "collected")
+        log(date=False)
         return members
 
     def build_pending_applicants_list(self) -> dict:
@@ -498,9 +605,9 @@ class _ISOC_AMS(Driver):
         # reason is the page referred to in the reports page doesn't give
         # us the ISOC-ID
 
-        self.log(date=False)
-        self.log("start build pending applications")
-        self.log("Creating page for Pending Applications")
+        log(date=False)
+        log("start build pending applications")
+        dlog("Creating page for Pending Applications")
         msg = "timelimit exceeded while waiting " \
             "for report page for Pending Application report"
         cond = (EC.presence_of_element_located,
@@ -508,13 +615,14 @@ class _ISOC_AMS(Driver):
                 "table")
         self.activate_window("report",
                              url=self.group_application_link)
+        dlog("Pending applications", "page created")
         pendings = self.get_table(self.get_pendings)
-        self.log("pending application list finished")
-        self.log(date=False)
+        log("Pending applications list finished / ", len(pendings), "collected")
+        log(date=False)
         return pendings
 
     def create_report_page(self, subject, button_title):
-        self.log("Creating page for", subject)
+        dlog("Creating page for", subject)
         msg = "timelimit exceeded while waiting " \
             "for report page for " + subject + " report"
         self.activate_window("report",
@@ -526,10 +634,10 @@ class _ISOC_AMS(Driver):
             ))
         time.sleep(1)
         self.execute_script('arguments[0].click();', elem)
-        self.log(subject, "page created")
+        dlog(subject, "page created")
 
     def load_report(self, subject):
-        self.log("Loading", subject)
+        dlog("Loading", subject)
         cond = EC.presence_of_element_located;
         val = "iframe"
         msg = "timelimit exceeded while waiting " \
@@ -547,7 +655,7 @@ class _ISOC_AMS(Driver):
                                                        "iframe.isView")))
         self.waitfor(EC.presence_of_element_located, "//table//tbody//td",
                      message=msg)
-        self.log("got list of", subject)
+        dlog("got list of", subject)
 
     def get_table(self, reader: callable):
         # this is a wrapper for reading tables
@@ -562,19 +670,15 @@ class _ISOC_AMS(Driver):
                     break
             return int(s[:i])
         if reader == self.get_members:
-            self.log('collecting the following fields: "ISOC-ID", "first name", '
+            dlog('collecting the following fields: "ISOC-ID", "first name", '
                 '"last name", "email"')
         if reader == self.get_member_contacts:
-            self.log('collecting the following fields: '
+            dlog('collecting the following fields: '
                 '"action link" (for taking actions), '
                 '"email" (to connect with members list)')
         if reader == self.get_pendings:
-            self.log('collecting the following fields: "name", "email", '
+            dlog('collecting the following fields: "name", "email", '
                 '"action link", "date"')
-        # if reader == self.get_pendings:
-        #     self.log('collecting the following fields: "name", "email", '
-        #         '"contact link", "action link", "date"')
-
 
         if reader == self.get_pendings:
             tableselector = "table.uiVirtualDataTable tbody tr"
@@ -594,33 +698,32 @@ class _ISOC_AMS(Driver):
             total_elem = self.find_element(By.CSS_SELECTOR, total_selector)
         WebDriverWait(self, 10).until(_WaitForTextInElement(total_elem))
         total = getint(total_elem.text)
-        self.log("Total (records expected):", total)
-        self.log("Waiting for Total to stabilise")
+        dlog("Total (records expected):", total)
+        dlog("Waiting for Total to stabilise")
         # wait a few seconds for total to become stable
         time.sleep(3)
         total = getint(total_elem.text)
-        self.log("Total (records expected):", total)
+        dlog("Total (records expected):", total)
         data = {}
         while total > len(data):
             time.sleep(3)
             rows = self.find_elements(
                 By.CSS_SELECTOR, tableselector)
-            self.log("calling reader with", len(rows), "table rows, ",
+            dlog("calling reader with", len(rows), "table rows, ",
                   "(collected records so far:", len(data),")")
             scr_to = reader(rows, data)
             if getint(total_elem.text) != total:
                 total = getint(total_elem.text)
-                self.log("Total was updated, now:", total)
+                dlog("Total was updated, now:", total)
             if len(data) < total:
                 self.execute_script('arguments[0].scrollIntoView(true);', scr_to)
             else:
-                self.log("records collected / total", len(data), " /", total)
+                dlog("records collected / total", len(data), " /", total)
                 return data
 
     def get_members(self, rows, members):
         for row in rows:
             cells = row.find_elements(By.CSS_SELECTOR, "td")
-            # self.log(row.text.replace("\n"," / "))
             if cells and cells[0].text and cells[0].text not in members.keys():
                 member = {}
                 member["first name"] = cells[1].text
@@ -632,9 +735,7 @@ class _ISOC_AMS(Driver):
 
     def get_member_contacts(self, rows, members):
         for row in rows:
-            # self.log(row.text.replace("\n"," / "))
             cells = row.find_elements(By.CSS_SELECTOR, "td")
-            # self.log(len(cells), "cells")
             if cells and \
                     len(cells) > 11 and \
                     cells[11].text and \
@@ -648,7 +749,6 @@ class _ISOC_AMS(Driver):
     def get_pendings(self, rows, pendings):
         for row in rows:
             cells = row.find_elements(By.CSS_SELECTOR, ".slds-cell-edit")
-            # self.log(row.text.replace("\n"," / "))
             if cells and cells[3].text:
                 pending = {}
                 pending["name"] = cells[4].text
@@ -661,7 +761,6 @@ class _ISOC_AMS(Driver):
                         get_attribute('href')
                 pending["date"] = datetime.strptime(
                     cells[10].text, "%m/%d/%Y")
-                    # . strftime("%Y-%m-%d ")  + " 00:00:00"
                 pendings[cells[6].text] = pending
             orow = row
         return orow
@@ -672,8 +771,8 @@ class _ISOC_AMS(Driver):
 
     def deny(self, entry, reason):
         time_to_wait = 100
-        self.log(date=False)
-        self.log("start denial for", entry["name"])
+        log(date=False)
+        log("start denial for", entry["name"])
         # operation will take place in an own tab
         self.activate_window("action",
                              url=entry["action link"])
@@ -693,7 +792,7 @@ class _ISOC_AMS(Driver):
                 until(EC.presence_of_element_located((
                     By.CSS_SELECTOR, 'button.slds-modal__close')))
 
-        self.log("select a reason for denial to feed AMS's couriosity")
+        dlog("select a reason for denial to feed AMS's couriosity")
         elem = self.waitfor(EC.element_to_be_clickable,
                             "//div"
                             "[contains(concat(' ',normalize-space(@class),' '),"
@@ -703,7 +802,7 @@ class _ISOC_AMS(Driver):
         time.sleep(1)  # for what ist worth?
         self.execute_script('arguments[0].click();', elem)
 ###
-        self.log("Waiting for combobox, chose 'other'")
+        dlog("Waiting for combobox, chose 'other'")
 
         elem = self.waitfor(EC.element_to_be_clickable,
                             "//lightning-base-combobox-item"
@@ -719,11 +818,11 @@ class _ISOC_AMS(Driver):
                             "//input",
                             message="timelimit exceeded while waiting "
                             "for deny reason 'Other - Details'")
-        self.log(f"we'll give '{reason}' as reason")
+        log(f"we'll give '{reason}' as reason")
         time.sleep(1)
         # elem.send_keys(reason)
         self.execute_script(f'arguments[0].value="{reason}";', elem)
-        self.log("finally click next")
+        dlog("finally click next")
 
         elem = self.waitfor(EC.element_to_be_clickable,
                             "//flowruntime-navigation-bar"
@@ -736,15 +835,15 @@ class _ISOC_AMS(Driver):
         try:
             WebDriverWait(self, 15).until(EC.staleness_of(d_close))
         except TimeoutException:
-            self.strong_msg("Timeout: Maybe operation was not performed")
-            self.log(date=False)
+            strong_msg("Timeout: Maybe operation was not performed")
+            log(date=False)
             return False
-        self.log("done")
+        log("done")
         return True
 
     def approve(self, entry):
-        self.log(date=False)
-        self.log("start approval for", entry["name"])
+        log(date=False)
+        log("start approval for", entry["name"])
 
         self.activate_window("action",
                              url=entry["action link"])
@@ -757,7 +856,7 @@ class _ISOC_AMS(Driver):
                             "waiting for details page for " +
                             entry["name"] + " to complete")
 
-        self.log("starting with approval")
+        dlog("starting with approval")
         time.sleep(1)  # for what ist worth?
         self.execute_script('arguments[0].click();', elem)
 
@@ -765,7 +864,7 @@ class _ISOC_AMS(Driver):
                 until(EC.presence_of_element_located((
                     By.CSS_SELECTOR, 'button.slds-modal__close')))
 
-        self.log("finally click next")
+        dlog("finally click next")
         elem = self.waitfor(EC.element_to_be_clickable,
                             "//flowruntime-navigation-bar"
                             "/footer"
@@ -778,17 +877,18 @@ class _ISOC_AMS(Driver):
         try:
             WebDriverWait(self, 15).until(EC.staleness_of(d_close))
         except TimeoutException:
-            self.strong_msg("Timeout: Maybe operation was not performed")
-            self.log(date=False)
+            strong_msg("Timeout: Maybe operation was not performed",
+                       level=logging.ERROR)
+            log(date=False)
             return False
-        self.log("done")
+        log("done")
         return True
 
 
     def delete(self, entry):
-        self.log(date=False)
+        log(date=False)
         name = entry["first name"] + " " + entry["last name"]
-        self.log("start delete", name, "from AMS Chapter members list" )
+        log("start delete", name, "from AMS Chapter members list" )
 
         self.activate_window("action",
                              url=entry["action link"])
@@ -811,10 +911,11 @@ class _ISOC_AMS(Driver):
         try:
             WebDriverWait(self, 15).until(EC.staleness_of(d_close))
         except TimeoutException:
-            self.strong_msg("Timeout: Maybe operation was not performed")
-            self.log(date=False)
+            strong_msg("Timeout: Maybe operation was not performed",
+                       level=logging.ERROR)
+            log(date=False)
             return False
-        self.log("done")
+        log("done")
         return True
 
 
@@ -829,62 +930,71 @@ if __name__ == "__main__":
     dryrun = False
     if "-d" in sys.argv:
         dryrun = True
+    debug = False
+    if "--debug" in sys.argv:
+        debug = True
 
     print("Username", end=":")
     user_id = input()
     password = getpass()
-    ams = ISOC_AMS(
-        user_id,
-        password,
-        headless=headless,
-        dryrun=dryrun)
+    if debug:
+        ams = ISOC_AMS(
+            user_id,
+            password,
+            headless=headless,
+            dryrun=dryrun,
+            logfile=None,
+            debuglog=sys.stderr,
+            )
+    else:
+        ams = ISOC_AMS(
+            user_id,
+            password,
+            headless=headless,
+            dryrun=dryrun,
+            logfile=sys.stdout,
+            )
     members = ams.members_list
     pendings = ams.pending_applications_list
 
-    print("\nMEMBERS")
+    strong_msg("MEMBERS")
     i = 0
     for k, v in members.items():
         i += 1
-        print(i, k,  v["first name"], v["last name"], v["email"])
+        log(i, k,  v["first name"], v["last name"], v["email"], date=False)
 
-    print("\nPENDING APPLICATIONS")
+    strong_msg("PENDING APPLICATIONS")
     i = 0
     for k, v in pendings.items():
         i += 1
         # print(i, k, v)
-        print(i, k, v["name"], v["email"], v["date"].isoformat()[:10])
+        log(i, k, v["name"], v["email"], v["date"].isoformat()[:10], date=False)
 
     if inp:
-        print('READING COMMANDS:')
+        log('READING COMMANDS:')
         import re
         patt = re.compile(r'(approve|deny|delete):?\s*([\d, ]+)')
         func = {"approve": ams.approve_pending_applications,
                 "deny": ams.deny_pending_applications,
-                "delete": ams.delete_members
+                "delete": ams.delete_members,
                 }
         splitter = re.compile(r'[\s,]+')
         for rec in sys.stdin:
+            rec = rec.strip()
             if m := patt.match(rec):
                 command = m.group(1)
                 keys = splitter.split(m.group(2))
                 func[command](keys)
             else:
-                print(rec, "contains an error")
-        print("EOF of command input")
+                log(rec, "contains an error", level=logging.ERROR)
+        log("EOF of command input")
 
-        devs = 0
-        for data in ams.difference_from_expected().items():
-            print("Deviations from expected results:")
-            print(data[0], end=" ")
-            if type(data[1]) is str:
-                print(data[1])
-            else:
-                if data[1]:
-                    devs = 1
-                    for k, v in data[1].items():
-                        if "members" in data[0]:
-                            print("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-                        else:
-                            print("        ", v["name"], v["email"], "("+k+")")
-            if devs == 0:
-                print("All results as expected")
+        result = ams.difference_from_expected()
+        if type(result) is not str:
+            for data in result.items():
+                log(data[0])
+                for k, v in data[1].items():
+                    if "members" in data[0]:
+                        log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+                    else:
+                        log("        ", v["name"], v["email"], "("+k+")", date=False)

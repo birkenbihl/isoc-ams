@@ -1,0 +1,273 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html><head><title>Python: module isoc_ams</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+</head><body bgcolor="#f0f0f8">
+
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
+<tr bgcolor="#7799ee">
+<td valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>isoc_ams</strong></big></big> (version 0.1.0)</font></td
+><td align=right valign=bottom
+><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/klaus/bin/python/isoc-ams/isoc_ams.py">/home/klaus/bin/python/isoc-ams/isoc_ams.py</a></font></td></tr></table>
+    <p><tt>Extract&nbsp;or&nbsp;modify&nbsp;Chapter&nbsp;Data&nbsp;of&nbsp;the&nbsp;ISOC&nbsp;AMS&nbsp;(Salesforce)&nbsp;Database.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;module&nbsp;consists&nbsp;of&nbsp;a&nbsp;Class&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;wrapping&nbsp;_ISOC_AMS&nbsp;which&nbsp;subclasses<br>
+&nbsp;&nbsp;&nbsp;&nbsp;the&nbsp;webdriver.&lt;browser&gt;&nbsp;of&nbsp;Selenium.&nbsp;Up&nbsp;to&nbsp;now&nbsp;ownly&nbsp;firefox&nbsp;and&nbsp;chrome<br>
+&nbsp;&nbsp;&nbsp;&nbsp;drivers&nbsp;are&nbsp;implemented&nbsp;and&nbsp;tested.<br>
+&nbsp;<br>
+CLASS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;PROPERTIES<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;class&nbsp;provides&nbsp;the&nbsp;following&nbsp;properties:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;members_list:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;list&nbsp;of&nbsp;Chapter&nbsp;members&nbsp;(according&nbsp;to&nbsp;AMS)&nbsp;with&nbsp;data&nbsp;(and&nbsp;links)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;pending_applicants_list:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;list&nbsp;of&nbsp;pending&nbsp;appplicants&nbsp;&nbsp;(according&nbsp;to&nbsp;AMS)&nbsp;for&nbsp;a&nbsp;Chapter<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;membership&nbsp;with&nbsp;data&nbsp;(and&nbsp;links)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;these&nbsp;properties&nbsp;are&nbsp;initialized&nbsp;after&nbsp;login&nbsp;...&nbsp;and&nbsp;this&nbsp;will&nbsp;take&nbsp;time<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;METHODS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;The&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;class&nbsp;provides&nbsp;the&nbsp;following&nbsp;methods:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;build_members_list:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;build&nbsp;a&nbsp;list&nbsp;of&nbsp;Chapter&nbsp;members&nbsp;with&nbsp;data&nbsp;(and&nbsp;links)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;build_pending_applicants_list:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;build&nbsp;a&nbsp;list&nbsp;of&nbsp;pending&nbsp;appplicants&nbsp;for&nbsp;a&nbsp;Chapter&nbsp;membership&nbsp;with<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;data&nbsp;(and&nbsp;links)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deny_applicants:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;deny&nbsp;Chapter&nbsp;membership&nbsp;for&nbsp;a&nbsp;list&nbsp;of&nbsp;applicants<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;approve_applicants:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;approve&nbsp;Chapter&nbsp;membership&nbsp;for&nbsp;a&nbsp;list&nbsp;of&nbsp;applicants<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete_members:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;revoke&nbsp;Chapter&nbsp;membership&nbsp;for&nbsp;members&nbsp;from&nbsp;the&nbsp;members&nbsp;list<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;difference_from_expected:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;reread&nbsp;AMS&nbsp;and&nbsp;check&nbsp;if&nbsp;all&nbsp;operations&nbsp;were&nbsp;successfull&nbsp;(not&nbsp;ever<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;problem&nbsp;can&nbsp;be&nbsp;detected&nbsp;by&nbsp;the&nbsp;methods)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;will&nbsp;log&nbsp;you&nbsp;in&nbsp;to&nbsp;ISOC.ORG&nbsp;and&nbsp;check&nbsp;your&nbsp;authorization&nbsp;at<br>
+&nbsp;&nbsp;&nbsp;&nbsp;instantiation.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;To&nbsp;select&nbsp;a&nbsp;webdriver,&nbsp;an&nbsp;ISOC_AMS_WEBDRIVER&nbsp;environment&nbsp;variable&nbsp;can&nbsp;be&nbsp;used.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;E.g.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ISOC_AMS_WEBDRIVER=Firefox<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;Firefox.&nbsp;Only&nbsp;Firefox&nbsp;and&nbsp;Chrome&nbsp;are&nbsp;allowed&nbsp;for&nbsp;now.<br>
+&nbsp;<br>
+FUNCTIONS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;functions&nbsp;are&nbsp;provided&nbsp;to&nbsp;support&nbsp;logging:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;log,&nbsp;dlog,&nbsp;strong_message<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(see&nbsp;below)<br>
+&nbsp;<br>
+EXAMPLE<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;from&nbsp;isoc_ams&nbsp;import&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;userid,&nbsp;password&nbsp;=&nbsp;"myuserid",&nbsp;"mysecret"<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;this&nbsp;will&nbsp;log&nbsp;you&nbsp;in<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;and&nbsp;instantiate&nbsp;an&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;<a href="builtins.html#object">object</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ams&nbsp;=&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>(userid,&nbsp;password)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;this&nbsp;will&nbsp;read&nbsp;the&nbsp;list&nbsp;of&nbsp;members,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;registered&nbsp;as&nbsp;chapters&nbsp;members<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;members&nbsp;=&nbsp;ams.members_list<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;print&nbsp;the&nbsp;results<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;for&nbsp;isoc_id,&nbsp;member&nbsp;in&nbsp;members.items():<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;print(isoc_id,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member["first&nbsp;name"],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member["last&nbsp;name"],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;member["email"],<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;select&nbsp;members&nbsp;to&nbsp;be&nbsp;deleted<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deletees&nbsp;=&nbsp;&lt;...&gt;&nbsp;&nbsp;#&nbsp;various&nbsp;formats&nbsp;are&nbsp;allowed&nbsp;for&nbsp;operation&nbsp;methods<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete_members(deletees)<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#&nbsp;check&nbsp;if&nbsp;all&nbsp;went&nbsp;well<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;difference_from_expected()<br>
+&nbsp;<br>
+CHANGELOG<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;0.0.2<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Allow&nbsp;input&nbsp;if&nbsp;executed&nbsp;as&nbsp;module<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add&nbsp;dryrun&nbsp;to&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;class<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;0.1.0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improved&nbsp;logging<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minor&nbsp;bug&nbsp;fixes</tt></p>
+<p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#aa55cc">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="selenium.webdriver.support.expected_conditions.html">selenium.webdriver.support.expected_conditions</a><br>
+<a href="io.html">io</a><br>
+</td><td width="25%" valign=top><a href="logging.html">logging</a><br>
+<a href="os.html">os</a><br>
+</td><td width="25%" valign=top><a href="sys.html">sys</a><br>
+<a href="time.html">time</a><br>
+</td><td width="25%" valign=top><a href="selenium.webdriver.html">selenium.webdriver</a><br>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ee77aa">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Classes</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#ee77aa"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl>
+<dt><font face="helvetica, arial"><a href="builtins.html#object">builtins.object</a>
+</font></dt><dd>
+<dl>
+<dt><font face="helvetica, arial"><a href="isoc_ams.html#ISOC_AMS">ISOC_AMS</a>
+</font></dt></dl>
+</dd>
+</dl>
+ <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="ISOC_AMS">class <strong>ISOC_AMS</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#ISOC_AMS">ISOC_AMS</a>(user:&nbsp;str,&nbsp;password:&nbsp;str,&nbsp;logfile:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;&amp;lt;_io.TextIOWrapper&nbsp;name='&amp;lt;stdout&amp;gt;'&nbsp;mode='w'&nbsp;encoding='utf-8'&amp;gt;,&nbsp;debuglog:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;None,&nbsp;headless:&nbsp;bool&nbsp;=&nbsp;True,&nbsp;dryrun:&nbsp;bool&nbsp;=&nbsp;False)<br>
+&nbsp;<br>
+Perform&nbsp;admin&nbsp;operations&nbsp;on&nbsp;a&nbsp;Chaper's&nbsp;members&nbsp;list&nbsp;stored&nbsp;in&nbsp;AMS.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;the&nbsp;main&nbsp;class&nbsp;to&nbsp;interface&nbsp;with&nbsp;the&nbsp;ISOC-AMS&nbsp;system.<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;default&nbsp;all&nbsp;operations&nbsp;run&nbsp;headless.&nbsp;If&nbsp;you&nbsp;want&nbsp;to&nbsp;follow&nbsp;it&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;browser&nbsp;window&nbsp;use&nbsp;headless=False.<br>
+&nbsp;<br>
+ARGUMENTS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;user:&nbsp;username&nbsp;(email)&nbsp;for&nbsp;ISO.ORG&nbsp;login<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;password:&nbsp;password&nbsp;for&nbsp;ISO.ORG&nbsp;login<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logfile:&nbsp;where&nbsp;to&nbsp;write&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;info-log&nbsp;output<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;debuglog:&nbsp;where&nbsp;to&nbsp;write&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;debug-level&nbsp;log&nbsp;output<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headless:&nbsp;run&nbsp;without&nbsp;GUI<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dryrun:&nbsp;only&nbsp;check&nbsp;input,&nbsp;no&nbsp;actions<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="ISOC_AMS-__init__"><strong>__init__</strong></a>(self, user: str, password: str, logfile: io.TextIOBase | str | None = &lt;_io.TextIOWrapper name='&lt;stdout&gt;' mode='w' encoding='utf-8'&gt;, debuglog: io.TextIOBase | str | None = None, headless: bool = True, dryrun: bool = False)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
+<dl><dt><a name="ISOC_AMS-approve_pending_applications"><strong>approve_pending_applications</strong></a>(self, approve_list: list | dict | str | int)</dt><dd><tt>Approve&nbsp;pending&nbsp;Members&nbsp;as&nbsp;Chapter&nbsp;members.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;&nbsp;&nbsp;&nbsp;approves&nbsp;pending&nbsp;members&nbsp;on&nbsp;approve_list&nbsp;as&nbsp;Chapter&nbsp;members<br>
+&nbsp;<br>
+ARGUMENTS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;approve_list:&nbsp;list&nbsp;of&nbsp;dict-entrys,&nbsp;or&nbsp;ISOC-IDs,&nbsp;or&nbsp;single&nbsp;entry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or&nbsp;ISOC-ID</tt></dd></dl>
+
+<dl><dt><a name="ISOC_AMS-delete_members"><strong>delete_members</strong></a>(self, delete_list: list | dict | str | int)</dt><dd><tt>Delete&nbsp;Member(s)&nbsp;from&nbsp;AMS-list&nbsp;of&nbsp;Chapter&nbsp;members.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;&nbsp;&nbsp;&nbsp;deletes&nbsp;delete_list&nbsp;entries&nbsp;from&nbsp;AMS-list&nbsp;of&nbsp;Chapter&nbsp;members<br>
+&nbsp;<br>
+ARGUMENTS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;delete_list:&nbsp;list&nbsp;of&nbsp;dict-entrys,&nbsp;or&nbsp;ISOC-IDs,&nbsp;or&nbsp;single&nbsp;entry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or&nbsp;an&nbsp;ISOC-ID</tt></dd></dl>
+
+<dl><dt><a name="ISOC_AMS-deny_pending_applications"><strong>deny_pending_applications</strong></a>(self, deny_list: list | dict | str | int, reason: str = 'Timeout, did not apply')</dt><dd><tt>Denies&nbsp;pending&nbsp;Members&nbsp;Chapter&nbsp;membership.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;&nbsp;&nbsp;&nbsp;denies&nbsp;Chapter&nbsp;membership&nbsp;for&nbsp;members&nbsp;on&nbsp;deny_list<br>
+&nbsp;<br>
+ARGUMENTS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;deny_list:&nbsp;list&nbsp;of&nbsp;dict-entrys,&nbsp;or&nbsp;ISOC-IDs,&nbsp;or&nbsp;single&nbsp;entry<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;or&nbsp;ISOC-ID<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;reason:&nbsp;All&nbsp;denied&nbsp;applicants&nbsp;have&nbsp;to&nbsp;be&nbsp;denied&nbsp;for&nbsp;a&nbsp;reason</tt></dd></dl>
+
+<dl><dt><a name="ISOC_AMS-difference_from_expected"><strong>difference_from_expected</strong></a>(self, test=None) -&gt; dict | str</dt><dd><tt>Compare&nbsp;intended&nbsp;outcome&nbsp;of&nbsp;operations&nbsp;with&nbsp;real&nbsp;outcome.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Compares&nbsp;the&nbsp;contents&nbsp;of&nbsp;the&nbsp;ISOC-AMS&nbsp;database&nbsp;with&nbsp;the&nbsp;expected&nbsp;result&nbsp;of<br>
+&nbsp;&nbsp;&nbsp;&nbsp;operations<br>
+&nbsp;<br>
+RETURNS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;A&nbsp;dict&nbsp;containing&nbsp;deviations&nbsp;of&nbsp;the&nbsp;inteded&nbsp;outcome:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"not&nbsp;deleted&nbsp;from&nbsp;members":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All&nbsp;entries&nbsp;in&nbsp;AMS-Chapter-Members&nbsp;that&nbsp;were&nbsp;supposed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;be&nbsp;deleted,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"not&nbsp;approved&nbsp;from&nbsp;pending&nbsp;applicants&nbsp;list":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All&nbsp;entries&nbsp;in&nbsp;pending&nbsp;applications&nbsp;that&nbsp;were&nbsp;supposed<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;to&nbsp;be&nbsp;approved&nbsp;but&nbsp;were&nbsp;not&nbsp;added&nbsp;to&nbsp;the&nbsp;AMS-Chapter-Members<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"not&nbsp;removed&nbsp;from&nbsp;pending&nbsp;applicants&nbsp;list":<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All&nbsp;entries&nbsp;in&nbsp;pending&nbsp;applications&nbsp;that&nbsp;should&nbsp;be<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;removed&nbsp;-&nbsp;either&nbsp;since&nbsp;approved&nbsp;or&nbsp;since&nbsp;denied<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Or&nbsp;a&nbsp;string&nbsp;with&nbsp;the&nbsp;result&nbsp;of&nbsp;the&nbsp;comoarision.</tt></dd></dl>
+
+<hr>
+Readonly properties defined here:<br>
+<dl><dt><strong>members_list</strong></dt>
+<dd><tt>Collects&nbsp;data&nbsp;about&nbsp;Chapter&nbsp;members.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Collects&nbsp;the&nbsp;relevant&nbsp;data&nbsp;about&nbsp;ISOC&nbsp;members<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registered&nbsp;as&nbsp;Chapter&nbsp;members&nbsp;in&nbsp;AMS<br>
+&nbsp;<br>
+RETURNS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dictionary&nbsp;with&nbsp;the&nbsp;following&nbsp;scheme:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&lt;ISOC-ID&gt;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"first&nbsp;name":&nbsp;&lt;first&nbsp;name&gt;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"last&nbsp;name":&nbsp;&lt;last&nbsp;name&gt;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;&lt;Email&nbsp;address&gt;',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"action&nbsp;link":&nbsp;&lt;url&nbsp;of&nbsp;page&nbsp;to&nbsp;edit&nbsp;this&nbsp;entry&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;<br>
+ISOC-ID&nbsp;are&nbsp;used&nbsp;as&nbsp;keys&nbsp;for&nbsp;the&nbsp;entries</tt></dd>
+</dl>
+<dl><dt><strong>pending_applications_list</strong></dt>
+<dd><tt>Collects&nbsp;data&nbsp;about&nbsp;pending&nbsp;Chapter&nbsp;applications.<br>
+&nbsp;<br>
+DESCRIPTION<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Collects&nbsp;the&nbsp;relevant&nbsp;data&nbsp;about&nbsp;pending&nbsp;Chapter&nbsp;applicants<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;registered&nbsp;as&nbsp;pending&nbsp;Chapter&nbsp;applicants&nbsp;in&nbsp;AMS<br>
+&nbsp;<br>
+RETURNS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dictionary&nbsp;with&nbsp;the&nbsp;following&nbsp;scheme:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{&lt;ISOC-ID&gt;:<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{"name":&nbsp;&lt;name&gt;,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"email":&nbsp;&lt;Email&nbsp;address&gt;',<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"action&nbsp;link":&nbsp;&lt;url&nbsp;of&nbsp;page&nbsp;to&nbsp;edit&nbsp;this&nbsp;entry&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"date":&nbsp;&lt;date&nbsp;of&nbsp;application&gt;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;},<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;...<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;---------------------------------------------<br>
+ISOC-ID&nbsp;are&nbsp;used&nbsp;as&nbsp;keys&nbsp;for&nbsp;the&nbsp;entries</tt></dd>
+</dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table></td></tr></table><p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#eeaa77">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#ffffff" face="helvetica, arial"><big><strong>Functions</strong></big></font></td></tr>
+    
+<tr><td bgcolor="#eeaa77"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
+<td width="100%"><dl><dt><a name="-dlog"><strong>dlog</strong></a>(*args, date: bool = True)</dt><dd><tt>Short&nbsp;for&nbsp;<a href="#-log">log</a>(*args,&nbsp;date=True,&nbsp;level=logging.DEBUG).</tt></dd></dl>
+ <dl><dt><a name="-log"><strong>log</strong></a>(*args, date: bool = True, level: int = 20)</dt><dd><tt>Write&nbsp;to&nbsp;log.<br>
+&nbsp;<br>
+ARGUMENTS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args:&nbsp;tuple&nbsp;of&nbsp;message&nbsp;parts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;level:&nbsp;logging&nbsp;level<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date:&nbsp;if&nbsp;False&nbsp;ommit&nbsp;time&nbsp;and&nbsp;level&nbsp;info&nbsp;in&nbsp;logrecord</tt></dd></dl>
+ <dl><dt><a name="-strong_msg"><strong>strong_msg</strong></a>(*args, date: bool = True, level: int = 20)</dt><dd><tt>Write&nbsp;to&nbsp;log&nbsp;emphasized&nbsp;message.<br>
+&nbsp;<br>
+ARGUMENTS<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;args:&nbsp;tuple&nbsp;of&nbsp;message&nbsp;parts<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;level:&nbsp;logging&nbsp;level<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;date:&nbsp;if&nbsp;False&nbsp;ommit&nbsp;time&nbsp;and&nbsp;level&nbsp;info&nbsp;in&nbsp;logrecord</tt></dd></dl>
+</td></tr></table>
+</body></html>

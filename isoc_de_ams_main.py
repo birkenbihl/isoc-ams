@@ -26,6 +26,7 @@ This app uses the isoc_de_ams module which provides the followin functions/prope
 
 import isoc_de_ams as isoc_de  # this is an interface similar to isoc_ams (but lightning fast and reliable)
 from isoc_ams import ISOC_AMS  # the ISOC_AMS class will do the job
+import isoc_ams
 import os
 from datetime import datetime
 
@@ -38,12 +39,8 @@ isoc_de.ams_support = "klaus@zu-dumm.de"
 ################################### test ###########################
 
 # we don't log to console if we run as cron job
-logfile = open(os.environ["HOME"] + "/isoc-ams-logs/" + \
-    datetime.now().date().isoformat() + ".log", "w")
-
-
-def log(*args, **kwargs):
-    print(*args, **kwargs, file=logfile)
+logfile = os.environ["HOME"] + "/isoc-ams-logs/" + \
+          datetime.now().date().isoformat() + ".log"
 
 
 def process_pendings():  # process pending applications sorting them into 4 lists
@@ -91,49 +88,52 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
                                # headless controls weather the browser window will be opened
     global ams
 
-    ams = ISOC_AMS(*isoc_de.ams_credentials,
+    ams = ISOC_AMS(
+                   *isoc_de.ams_credentials,
                    headless=headless,
-                   logfile=logfile,
+                   logfile=sys.stdout,
+                   debuglog=logfile,
                    dryrun=dryrun)                             # instantiate ISOC_AMS instance
+
     pendings_operations = process_pendings()                    # build lists for pending applications actions
     members_operations = process_members()                      # build lists for members actions
 
     #
     # print the lists for pending applications actions
     #
-    log("\nPending Applications:")
-    log("\n   the following pending applications will be approved:")
+    isoc_ams.strong_msg("Pending Applications:")
+    isoc_ams.log("\n   the following pending applications will be approved:", date=False)
     for k, v in pendings_operations["approve"].items():
-        log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")")
-    log("\n   the following pending applications will be denied:")
+        isoc_ams.log("        ", v["name"], v["email"],
+              v["date"].date().isoformat(), "("+k+")", date=False)
+    isoc_ams.log("\n   the following pending applications will be denied:", date=False)
     for k, v in pendings_operations["deny"].items():
-        log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")")
-    log("\n   the following pending applications will be invited:")
+        isoc_ams.log("        ", v["name"], v["email"],
+              v["date"].date().isoformat(), "("+k+")", date=False)
+    isoc_ams.log("\n   the following pending applications will be invited:", date=False)
     for k, v in pendings_operations["invite"].items():
-        log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")")
-    log("\n   the following pending applications will be waiting:")
+        isoc_ams.log("        ", v["name"], v["email"],
+              v["date"].date().isoformat(), "("+k+")", date=False)
+    isoc_ams.log("\n   the following pending applications will be waiting:", date=False)
     for k, v in pendings_operations["noop"].items():
-        log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")")
+        isoc_ams.log("        ", v["name"], v["email"],
+              v["date"].date().isoformat(), "("+k+")", date=False)
     #
     # print the lists for members actions
     #
-    log("\nMembers:")
-    log("\n   the following members will be deleted from AMS:")
+    isoc_ams.strong_msg("Members:")
+    isoc_ams.log("\n   the following members will be deleted from AMS:", date=False)
     for k, v in members_operations["delete"].items():
-        log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-    log("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):")
+        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+    isoc_ams.log("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):", date=False)
     for k, v in members_operations["add"].items():
-        log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-    log("\n   the following locally registered members are in sync with AMS:")
+        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+    isoc_ams.log("\n   the following locally registered members are in sync with AMS:", date=False)
     # too many to print ...
-    log("   ...")
+    isoc_ams.log("   ...  too many to print", date=False)
     # ... uncomment below if not
     # for k, v in members_operations["noop"].items():
-    #     log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
+    #     isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
 
     #
     # operations on AMS system (will handle dry runs on its own)
@@ -158,7 +158,7 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
                 isoc_de.invite(k, v)            # send an invitation mail
 
         if members_operations["add"]:
-            # send an mail to ams_support to ask to have this list added to AMS Chapters members
+            # send a mail to ams_support to ask to have this list added to AMS Chapters members
             isoc_de.mail_to_ams_support(members_operations["add"])
 
     #
@@ -171,17 +171,22 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
         # if these lists are empty - we are done
         # otherwise here is what went wrong
 
-    for data in r.items():
-        log(data[0], end=" ")
-        if type(data[1]) is str:
-            log(data[1])
-        else:
-            log()
-            for k, v in data[1].items():
-                if "members" in data[0]:
-                    log("        ", v["first name"], v["last name"], v["email"], "("+k+")")
-                else:
-                    log("        ", v["name"], v["email"], "("+k+")")
+    if type(r) is not str:
+        for data in r.items():
+            if data[1]:
+                isoc_ams.log(data[0])
+                for k, v in data[1].items():
+                    if "members" in data[0]:
+                        isoc_ams.log("        ", v["first name"],
+                                     v["last name"],
+                                     v["email"], "("+k+")",
+                                     date=False)
+                    else:
+                        isoc_ams.log("        ", v["name"],
+                                     v["email"], "("+k+")",
+                                     date=False)
+    else:
+        isoc_ams.log(r)
 
 if __name__ == "__main__":
     import sys
@@ -203,9 +208,9 @@ if __name__ == "__main__":
         headless = True
 
     if len(sys.argv) > maxargs:
-        log("usage:", sys.argv[0], "[-d | --dry] [-h | --head]")
-        log("      ", "-d | --dry   dry run")
-        log("      ", "-h | --head  don't run headless")
+        print("usage:", sys.argv[0], "[-d | --dry] [-h | --head]")
+        print("      ", "-d | --dry   dry run")
+        print("      ", "-h | --head  don't run headless")
 
     else:
         main(dryrun, headless)
