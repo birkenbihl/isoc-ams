@@ -274,5 +274,5 @@ Thank you,
 
 Your ISOC.DE MAS support team
 
-See file [isoc_ams.html](https://github.com/birkenbihl/isoc-ams/blob/main/isoc_ams.html) for doc on the API interface.
+See file [isoc_ams.html](https://html-preview.github.io/?url=https://github.com/birkenbihl/isoc-ams/blob/main/isoc_ams.html) for doc on the API interface.
 
