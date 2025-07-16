@@ -85,8 +85,10 @@ CHANGELOG
     Version 0.1.0
         Improved logging
         minor bug fixes
+    Version 0.1.1
+        minor bug fixes
 """
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -232,9 +234,9 @@ ARGUMENTS
         _init_logging(logfile, debuglog)
         self._ams = _ISOC_AMS()
         if self._dryrun:
-            strong_msg("START DRYRUN")
+            strong_msg("START DRYRUN:", "Webdriver is", _dr)
         else:
-            strong_msg("START")
+            strong_msg("START:", "Webdriver is", _dr)
         self._ams.login((user, password))
         self._members_list = self._ams.build_members_list()
         self._pending_applications_list = self._ams.build_pending_applicants_list()
@@ -943,8 +945,8 @@ if __name__ == "__main__":
             password,
             headless=headless,
             dryrun=dryrun,
-            logfile=None,
-            debuglog=sys.stderr,
+            logfile=sys.stdout,
+            debuglog=NoneHh,
             )
     else:
         ams = ISOC_AMS(

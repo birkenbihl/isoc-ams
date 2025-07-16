@@ -35,7 +35,7 @@ global ams # the instatiation of the ISOC_AMS class.
 
 ####################################################################
 # for tests we use this instead of the default amshelp@isoc.org
-isoc_de.ams_support = "klaus@zu-dumm.de"
+# isoc_de.ams_support = "klaus@zu-dumm.de"
 ################################### test ###########################
 
 # we don't log to console if we run as cron job
