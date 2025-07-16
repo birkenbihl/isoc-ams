@@ -1,7 +1,7 @@
 
 # isoc-ams
 
-A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their Chapter Database with AMS (semi)automatically.
+A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their own Chapter Database with AMS (semi)automatically.
 
 After 10 years+  of sorrow, millions minutes of waiting for answers from the AMS web interface, tons of useless clicks, many (in fact) rejected requests to provide an API access: the author decided to build an API himself. Even if it might not be more than a demonstrator for the functionality needed. Anyhow (see below): for now it is running on a weekly basis doing a great job in avoiding manual work. 
 
@@ -31,8 +31,20 @@ Don't forget: it takes time and you may see many kinds of errors. Often the cure
 Anyhow, after running it some time now it seems to work better than expected.
 So here we go:
 
-## Installation
+## Preparing
+### Prerequisites
+isoc-ams was tested under Linux (Ubuntu 22.04) and Windows 11.
 
+**While rather stable under Linux, Windows 11 produced mixed results. Under powershell you may need to set the ExecutionPolicy**
+```
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Firefox or Chrome Webbrowser with Webdriver (usually included) is required.
+
+A full installation of Python 3.9+ is required.
+
+### Installation
 Install (or update) isoc-ams with pip.
 
 ```bash
@@ -59,9 +71,9 @@ Output:
 Username:xyz
 Password: 
 
-************************************* 
-2025-07-13 19:25:54 - INFO - START 
-************************************* 
+*********************************************************** 
+2025-07-13 19:25:54 - INFO - START: Webdriver is firefox 
+*********************************************************** 
 
 2025-07-13 19:25:54 - INFO - logging in 
 
@@ -74,9 +86,9 @@ OK, probably your fault. After fixing:
 Username: xxx
 Password: 
 
-************************************* 
-2025-07-13 19:26:27 - INFO - START 
-************************************* 
+*********************************************************** 
+2025-07-13 19:26:27 - INFO - START: Webdriver is firefox 
+*********************************************************** 
 
 2025-07-13 19:26:27 - INFO - logging in 
 2025-07-13 19:26:45 - INFO - Now on Chapter Leader portal 
@@ -131,9 +143,9 @@ Output:
 Username: xxx
 Password: 
 
-******************************************** 
-2025-07-15 10:35:57 - INFO - START DRYRUN 
-******************************************** 
+****************************************************************** 
+2025-07-15 10:35:57 - INFO - START DRYRUN: Webdriver is firefox 
+*****************************************************************
 
 2025-07-15 10:35:57 - INFO - logging in 
 2025-07-15 10:36:12 - INFO - Now on Chapter Leader portal 
@@ -190,9 +202,9 @@ isoc_ams unleashes its full power when used as API to make things happen without
 Here the output:
 ```
 
-************************************* 
-2025-07-15 14:13:36 - INFO - START 
-************************************* 
+*********************************************************** 
+2025-07-15 14:13:30 - INFO - START: Webdriver is firefox 
+*********************************************************** 
 
 2025-07-15 14:13:36 - INFO - logging in 
 2025-07-15 14:13:53 - INFO - Now on Chapter Leader portal 
