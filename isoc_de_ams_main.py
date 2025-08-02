@@ -33,15 +33,8 @@ from datetime import datetime
 
 global ams # the instatiation of the ISOC_AMS class.
 
-####################################################################
-# for tests we use this instead of the default amshelp@isoc.org
-# isoc_de.ams_support = "klaus@zu-dumm.de"
-################################### test ###########################
-
 # we don't log to console if we run as cron job
-logfile = os.environ["HOME"] + "/isoc-ams-logs/" + \
-          datetime.now().date().isoformat() + ".log"
-
+logfile = isoc_de.logfile
 
 def process_pendings():  # process pending applications sorting them into 4 lists
     actions = {
@@ -81,7 +74,6 @@ def process_members():   # compare local list of members with AMS sorting them i
                                                                 # and not on AMS pending applications list
             actions["add"][idx] = member                        # we ask AMS_support to add member as Chapter member
     return actions
-
 
 
 def main(dryrun, headless):    # dryrun will only build the lists but will not really start actions
@@ -128,12 +120,16 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
     isoc_ams.log("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):", date=False)
     for k, v in members_operations["add"].items():
         isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+    isoc_ams.log("\n   for the following members we miss an ISOC-ID:", date=False)
+    for v in isoc_de.no_ids:
+        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], date=False)
+
     isoc_ams.log("\n   the following locally registered members are in sync with AMS:", date=False)
     # too many to print ...
     isoc_ams.log("   ...  too many to print", date=False)
     # ... uncomment below if not
-    # for k, v in members_operations["noop"].items():
-    #     isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+    for k, v in members_operations["noop"].items():
+        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
 
     #
     # operations on AMS system (will handle dry runs on its own)
@@ -159,7 +155,7 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
 
         if members_operations["add"]:
             # send a mail to ams_support to ask to have this list added to AMS Chapters members
-            isoc_de.mail_to_ams_support(members_operations["add"])
+            isoc_de.mail_to_ams_support(members_operations["add"], isoc_de.no_ids)
 
     #
     # check if AMS operations had the expected result
