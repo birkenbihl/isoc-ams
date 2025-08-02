@@ -87,8 +87,10 @@ CHANGELOG
         minor bug fixes
     Version 0.1.1
         minor bug fixes
+    Version 0.1.2
+        eliminate not required checks in difference_from_expected()
 """
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -234,13 +236,13 @@ ARGUMENTS
         _init_logging(logfile, debuglog)
         self._ams = _ISOC_AMS()
         if self._dryrun:
-            strong_msg("START DRYRUN:", "Webdriver is", _dr)
+            strong_msg("START DRYRUN:", "Version:", __version__, "Webdriver is", _dr)
         else:
-            strong_msg("START:", "Webdriver is", _dr)
+            strong_msg("START:", "Version:", __version__, "Webdriver is", _dr)
         self._ams.login((user, password))
         self._members_list = self._ams.build_members_list()
         self._pending_applications_list = self._ams.build_pending_applicants_list()
-
+        self.approve_list = self.delete_list = self.deny_list = None
 
     @property
     def members_list(self) -> dict:
@@ -300,6 +302,7 @@ ARGUMENTS
         """
         if type(delete_list) in (str, int):
             delete_list = [delete_list]
+        self.delete_list = delete_list
         for deletee in map(str, delete_list):
             if deletee in self._members_list:
                 deletee = str(deletee)
@@ -327,6 +330,7 @@ ARGUMENTS
         """
         if type(approve_list) in (int, str):
             approve_list = [approve_list]
+        self.approve_list = approve_list
         for approvee in map(str, approve_list):
             if approvee in self._pending_applications_list:
                 if approvee not in self._members_list:
@@ -360,6 +364,7 @@ ARGUMENTS
         """
         if type(deny_list) in (str, int):
             deny_list = [deny_list],
+        self.deny_list = deny_list
         for denyee in map(str, deny_list):
             if denyee in self._pending_applications_list:
                 if not self._dryrun:
@@ -406,29 +411,36 @@ RETURNS
             not_deleted = {}
             not_approved = {}
             not_removed_from_pending = {}
-            new_members_list = self._ams.build_members_list()
+
+            if self.approve_list or self.delete_list:
+                new_members_list = self._ams.build_members_list()
+            if self.deny_list or self.approve_list:
+                new_pending_applications_list = self._ams.build_pending_applicants_list()
+
             dlog("Check members list")
-            for nm in new_members_list:
-                if nm not in self._members_list:
-                    dlog(new_members_list[nm]["first name"],
-                         new_members_list[nm]["last name"],
-                         "("+nm+")",
-                         "was not deleted")
-                    not_deleted[nm] = new_members_list[nm]
-            for nm in self._members_list:
-                if nm not in new_members_list:
-                    dlog(self._members_list[nm]["first name"],
-                         self._members_list[nm]["last name"],
-                         "("+nm+")",
-                         "was not approved")
-                    not_approved[nm] = self._members_list[nm]
-            new_pending_applications_list = self._ams.build_pending_applicants_list()
-            for np in new_pending_applications_list:
-                if np not in self._pending_applications_list:
-                    dlog(self._members_list[nm]["name"],
-                         "("+nm+")",
-                         "was not removed from pending aoolications")
-                    not_removed_from_pending[np] = new_pending_applications_list[np]
+            if self.delete_list:
+                for nm in new_members_list:
+                    if nm not in self._members_list:
+                        dlog(new_members_list[nm]["first name"],
+                             new_members_list[nm]["last name"],
+                             "("+nm+")",
+                             "was not deleted")
+                        not_deleted[nm] = new_members_list[nm]
+            if self.approve_list:
+                for nm in self._members_list:
+                    if nm not in new_members_list:
+                        dlog(self._members_list[nm]["first name"],
+                             self._members_list[nm]["last name"],
+                             "("+nm+")",
+                             "was not approved")
+                        not_approved[nm] = self._members_list[nm]
+            if self.deny_list:
+                for np in new_pending_applications_list:
+                    if np not in self._pending_applications_list:
+                        dlog(self._members_list[nm]["name"],
+                             "("+nm+")",
+                             "was not removed from pending aoolications")
+                        not_removed_from_pending[np] = new_pending_applications_list[np]
 
             result = {}
             if not_deleted:
@@ -946,7 +958,7 @@ if __name__ == "__main__":
             headless=headless,
             dryrun=dryrun,
             logfile=sys.stdout,
-            debuglog=NoneHh,
+            debuglog=None,
             )
     else:
         ams = ISOC_AMS(
