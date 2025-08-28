@@ -76,7 +76,7 @@ def process_members():   # compare local list of members with AMS sorting them i
     return actions
 
 
-def main(dryrun, headless):    # dryrun will only build the lists but will not really start actions
+def main(dryrun, headless, amsmail):    # dryrun will only build the lists but will not really start actions
                                # headless controls weather the browser window will be opened
     global ams
 
@@ -153,7 +153,7 @@ def main(dryrun, headless):    # dryrun will only build the lists but will not r
             for k, v in pendings_operations["invite"].items():
                 isoc_de.invite(k, v)            # send an invitation mail
 
-        if members_operations["add"]:
+        if members_operations["add"] and amsmail:
             # send a mail to ams_support to ask to have this list added to AMS Chapters members
             isoc_de.mail_to_ams_support(members_operations["add"], isoc_de.no_ids)
 
@@ -203,10 +203,18 @@ if __name__ == "__main__":
     else:
         headless = True
 
+    if "-m" in sys.argv or "--amsmail" in sys.argv:
+        amsmail = True
+        maxargs += 1
+    else:
+        amsmail = False
+
+
     if len(sys.argv) > maxargs:
         print("usage:", sys.argv[0], "[-d | --dry] [-h | --head]")
         print("      ", "-d | --dry   dry run")
         print("      ", "-h | --head  don't run headless")
+        print("      ", "-m | --amsmail  send mail to ams-support")
 
     else:
-        main(dryrun, headless)
+        main(dryrun, headless, amsmail)
