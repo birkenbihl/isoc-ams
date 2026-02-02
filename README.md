@@ -1,7 +1,10 @@
 
 # isoc-ams
 
-A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their own Chapter Database with AMS (semi)automatically.
+## Temporary disclaimer:
+* *Since Jan. 7 2026 the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC) has some technical issues - producing endless waits while the user expects information. A new release isoc-ams copes as good as possible with these issues - though sometimes with very limited success due to lack of information.*
+
+isoc-ams is a Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their own Chapter Database with AMS (semi)automatically.
 
 After 10 years+  of sorrow, millions minutes of waiting for answers from the AMS web interface, tons of useless clicks, many (in fact) rejected requests to provide an API access: the author decided to build an API himself. Even if it might not be more than a demonstrator for the functionality needed. Anyhow (see below): for now it is running on a weekly basis doing a great job in avoiding manual work. 
 
