@@ -89,10 +89,14 @@ CHANGELOG
         minor bug fixes
     Version 0.1.2
         eliminate not required checks in difference_from_expected()
+    Version 0.1.3
+        tolerance against refused information e.g.members lists
+
 """
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 
 from selenium import webdriver
+import selenium.common.exceptions
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.wait import WebDriverWait, TimeoutException
 from selenium.webdriver.support import expected_conditions as EC
@@ -195,7 +199,7 @@ ARGUMENTS
     x = 0
     for t in args:
         x += len(str(t)) + 1
-    x = x + 1 + 30
+    x = min(x + 1 + 30, 80)
     log("\n" + x * "*", date=False, level=level)
     log(*args, date=date, level=level)
     log(x * "*", date=False, level=level)
@@ -235,17 +239,40 @@ ARGUMENTS
         self._dryrun = dryrun
         _init_logging(logfile, debuglog)
         self._ams = _ISOC_AMS()
+
+
+
         if self._dryrun:
             strong_msg("START DRYRUN:", "Version:", __version__, "Webdriver is", _dr)
         else:
             strong_msg("START:", "Version:", __version__, "Webdriver is", _dr)
-        self._ams.login((user, password))
-        self._members_list = self._ams.build_members_list()
-        self._pending_applications_list = self._ams.build_pending_applicants_list()
-        self.approve_list = self.delete_list = self.deny_list = None
+
+        try:
+            self._ams.login((user, password))
+        except selenium.common.exceptions.TimeoutException as e:
+            strong_msg("Timeout Error during login", e, level=logging.ERROR)
+            log("Will terminate")
+            exit(1)
+
+        try:
+            self._members_list = self._ams.build_members_list()
+        except selenium.common.exceptions.TimeoutException as e:
+            self._members_list = None
+            strong_msg("Timeout Error during build members list", e, level=logging.ERROR)
+            log("no need to exit here we still can approve or reject applicants")
+            #
+            # no need to exit here we still can approve or reject applicants
+            #
+
+        try:
+            self._pending_applications_list = self._ams.build_pending_applicants_list()
+        except selenium.common.exceptions.TimeoutException as e:
+            strong_msg("Timeout Error during build pending applications list", e, level=logging.ERROR)
+            log("Will terminate")
+            exit(2)
 
     @property
-    def members_list(self) -> dict:
+    def members_list(self) -> dict | None:
         """Collects data about Chapter members.
 
 DESCRIPTION
@@ -268,7 +295,7 @@ ISOC-ID are used as keys for the entries
         return self._members_list
 
     @property
-    def pending_applications_list(self) -> dict:
+    def pending_applications_list(self) -> dict | None:
         """Collects data about pending Chapter applications.
 
 DESCRIPTION
@@ -335,8 +362,16 @@ ARGUMENTS
             if approvee in self._pending_applications_list:
                 if approvee not in self._members_list:
                     if not self._dryrun:
-                        self._ams.approve(self._pending_applications_list[approvee])
-                    log("Approved", approvee,
+                        try:
+                            self._ams.approve(self._pending_applications_list[approvee])
+                        except selenium.common.exceptions.TimeoutException as e:
+                            log("Timeout during approval of",
+                                self._pending_applications_list[approvee]["name"],
+                                e,
+                                level=logging.ERROR)
+                            continue
+
+                    log("Approved",
                         self._pending_applications_list[approvee]["name"])
                     del self._pending_applications_list[approvee]
                 else:
@@ -368,8 +403,16 @@ ARGUMENTS
         for denyee in map(str, deny_list):
             if denyee in self._pending_applications_list:
                 if not self._dryrun:
-                    self._ams.deny(self._pending_applications_list[denyee],
-                                   reason)
+                    try:
+                        self._ams.deny(self._pending_applications_list[denyee],
+                                       reason)
+                    except selenium.common.exceptions.TimeoutException as e:
+                        log("Timeout during denial of",
+                            self._pending_applications_list[denyee]["name"],
+                            e,
+                            level=logging.ERROR)
+                        continue
+
                 log("Denied", denyee,
                               self._pending_applications_list[denyee]["name"])
                 del self._pending_applications_list[denyee]
@@ -464,6 +507,8 @@ class _ISOC_AMS(Driver):
         super().__init__(_options)
         self.windows = {}
 
+        #-------------------------------------------------------
+
     def __del__(self):
         self.quit()
 
@@ -495,8 +540,8 @@ class _ISOC_AMS(Driver):
             else:
                 elem = WebDriverWait(self, timeout).until(cond)
             return elem
-        except TimeoutException:
-            strong_msg(message, level=logging.ERROR)
+        except TimeoutException as e:
+            strong_msg(message, e, level=logging.ERROR)
             raise
 
 #
@@ -777,7 +822,7 @@ class _ISOC_AMS(Driver):
                     cells[10].text, "%m/%d/%Y")
                 pendings[cells[6].text] = pending
             orow = row
-        return orow
+        return orowselenium.common.exceptions.TimeoutException
 
 #
 #  operations on data

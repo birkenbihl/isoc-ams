@@ -29,6 +29,7 @@ from isoc_ams import ISOC_AMS  # the ISOC_AMS class will do the job
 import isoc_ams
 import os
 from datetime import datetime
+import logging
 
 
 global ams # the instatiation of the ISOC_AMS class.
@@ -87,61 +88,75 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
                    debuglog=logfile,
                    dryrun=dryrun)                             # instantiate ISOC_AMS instance
 
-    pendings_operations = process_pendings()                    # build lists for pending applications actions
-    members_operations = process_members()                      # build lists for members actions
+    if ams.pending_applications_list is not None:
+        pendings_operations = process_pendings()              # build lists for pending applications actions
+    else:
+        pendings_operations = None
+    if ams.members_list is not None:
+        members_operations = process_members()                # build lists for members actions
+    else:
+        members_operations = None
 
     #
     # print the lists for pending applications actions
     #
-    isoc_ams.strong_msg("Pending Applications:")
-    isoc_ams.log("\n   the following pending applications will be approved:", date=False)
-    for k, v in pendings_operations["approve"].items():
-        isoc_ams.log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")", date=False)
-    isoc_ams.log("\n   the following pending applications will be denied:", date=False)
-    for k, v in pendings_operations["deny"].items():
-        isoc_ams.log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")", date=False)
-    isoc_ams.log("\n   the following pending applications will be invited:", date=False)
-    for k, v in pendings_operations["invite"].items():
-        isoc_ams.log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")", date=False)
-    isoc_ams.log("\n   the following pending applications will be waiting:", date=False)
-    for k, v in pendings_operations["noop"].items():
-        isoc_ams.log("        ", v["name"], v["email"],
-              v["date"].date().isoformat(), "("+k+")", date=False)
+    if pendings_operations is not None:
+        isoc_ams.strong_msg("Pending Applications:")
+        isoc_ams.log("\n   the following pending applications will be approved:", date=False)
+        for k, v in pendings_operations["approve"].items():
+            isoc_ams.log("        ", v["name"], v["email"],
+                  v["date"].date().isoformat(), "("+k+")", date=False)
+        isoc_ams.log("\n   the following pending applications will be denied:", date=False)
+        for k, v in pendings_operations["deny"].items():
+            isoc_ams.log("        ", v["name"], v["email"],
+                  v["date"].date().isoformat(), "("+k+")", date=False)
+        isoc_ams.log("\n   the following pending applications will be invited:", date=False)
+        for k, v in pendings_operations["invite"].items():
+            isoc_ams.log("        ", v["name"], v["email"],
+                  v["date"].date().isoformat(), "("+k+")", date=False)
+        isoc_ams.log("\n   the following pending applications will be waiting:", date=False)
+        for k, v in pendings_operations["noop"].items():
+            isoc_ams.log("        ", v["name"], v["email"],
+                  v["date"].date().isoformat(), "("+k+")", date=False)
+    else:
+        isoc_ams.strong_msg("No Pending Applications actions due to error", level=logging.ERROR)
     #
     # print the lists for members actions
     #
-    isoc_ams.strong_msg("Members:")
-    isoc_ams.log("\n   the following members will be deleted from AMS:", date=False)
-    for k, v in members_operations["delete"].items():
-        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
-    isoc_ams.log("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):", date=False)
-    for k, v in members_operations["add"].items():
-        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
-    isoc_ams.log("\n   for the following members we miss an ISOC-ID:", date=False)
-    for v in isoc_de.no_ids:
-        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], date=False)
+    if members_operations is not None:
+        isoc_ams.strong_msg("Members:")
+        isoc_ams.log("\n   the following members will be deleted from AMS:", date=False)
+        for k, v in members_operations["delete"].items():
+            isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+        isoc_ams.log("\n   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!):", date=False)
+        for k, v in members_operations["add"].items():
+            isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+        isoc_ams.log("\n   for the following members we miss an ISOC-ID:", date=False)
+        for v in isoc_de.no_ids:
+            isoc_ams.log("        ", v["first name"], v["last name"], v["email"], date=False)
 
-    isoc_ams.log("\n   the following locally registered members are in sync with AMS:", date=False)
-    # too many to print ...
-    isoc_ams.log("   ...  too many to print", date=False)
-    # ... uncomment below if not
-    for k, v in members_operations["noop"].items():
-        isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+        isoc_ams.log("\n   the following locally registered members are in sync with AMS:", date=False)
+        # too many to print ...
+        isoc_ams.log("   ...  too many to print", date=False)
+        # ... uncomment below if not
+        for k, v in members_operations["noop"].items():
+            isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
+    else:
+        isoc_ams.strong_msg("No actions on Members due to previous error", level=logging.ERROR)
 
     #
     # operations on AMS system (will handle dry runs on its own)
     #
-    if pendings_operations["approve"]:
-        ams.approve_pending_applications(pendings_operations["approve"])
+    if pendings_operations is not None:
+        if pendings_operations["approve"]:
+            ams.approve_pending_applications(pendings_operations["approve"])
 
-    if pendings_operations["deny"]:
-        ams.deny_pending_applications(pendings_operations["deny"])
+        if pendings_operations["deny"]:
+            ams.deny_pending_applications(pendings_operations["deny"])
 
-    if members_operations["delete"]:
-        ams.delete_members(members_operations["delete"])
+    if members_operations is not None:
+        if members_operations["delete"]:
+            ams.delete_members(members_operations["delete"])
 
     #
     # other operations
@@ -153,9 +168,10 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
             for k, v in pendings_operations["invite"].items():
                 isoc_de.invite(k, v)            # send an invitation mail
 
-        if members_operations["add"] and amsmail:
-            # send a mail to ams_support to ask to have this list added to AMS Chapters members
-            isoc_de.mail_to_ams_support(members_operations["add"], isoc_de.no_ids)
+        if members_operations is not None:
+            if members_operations["add"] and amsmail:
+                # send a mail to ams_support to ask to have this list added to AMS Chapters members
+                isoc_de.mail_to_ams_support(members_operations["add"], isoc_de.no_ids)
 
     #
     # check if AMS operations had the expected result
@@ -167,22 +183,24 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
         # if these lists are empty - we are done
         # otherwise here is what went wrong
 
-    if type(r) is not str:
-        for data in r.items():
-            if data[1]:
-                isoc_ams.log(data[0])
-                for k, v in data[1].items():
-                    if "members" in data[0]:
-                        isoc_ams.log("        ", v["first name"],
-                                     v["last name"],
-                                     v["email"], "("+k+")",
-                                     date=False)
-                    else:
-                        isoc_ams.log("        ", v["name"],
-                                     v["email"], "("+k+")",
-                                     date=False)
-    else:
-        isoc_ams.log(r)
+    if members_operations is not None and pendings_operations is not None:
+        if type(r) is not str:
+            for data in r.items():
+                if data[1]:
+                    isoc_ams.log(data[0])
+                    for k, v in data[1].items():
+                        if "members" in data[0]:
+                            isoc_ams.log("        ", v["first name"],
+                                         v["last name"],
+                                         v["email"], "("+k+")",
+                                         date=False)
+                        else:
+                            isoc_ams.log("        ", v["name"],
+                                         v["email"], "("+k+")",
+                                         date=False)
+        else:
+            isoc_ams.log(r)
+    else: ams.strong_msg("Results cannot be verified due to previous errors", level=logging.ERROR)
 
 if __name__ == "__main__":
     import sys
