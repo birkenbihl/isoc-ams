@@ -93,7 +93,7 @@ CHANGELOG
         tolerance against refused information e.g.members lists
 
 """
-__version__ = "0.1.3"
+__version__ = "0.1.4"
 
 from selenium import webdriver
 import selenium.common.exceptions
@@ -267,6 +267,7 @@ ARGUMENTS
         try:
             self._pending_applications_list = self._ams.build_pending_applicants_list()
         except selenium.common.exceptions.TimeoutException as e:
+            self._pending_applications_list = None
             strong_msg("Timeout Error during build pending applications list", e, level=logging.ERROR)
             log("Will terminate")
             exit(2)
@@ -741,6 +742,7 @@ class _ISOC_AMS(Driver):
 
         if reader == self.get_pendings:
             tableselector = "table.uiVirtualDataTable tbody tr"
+            print("expecting metrics")
             total_elem = self.waitfor(
                 EC.presence_of_element_located,
                 "//force-list-view-manager-status-info/span/span",
@@ -822,7 +824,7 @@ class _ISOC_AMS(Driver):
                     cells[10].text, "%m/%d/%Y")
                 pendings[cells[6].text] = pending
             orow = row
-        return orowselenium.common.exceptions.TimeoutException
+        return orow
 
 #
 #  operations on data

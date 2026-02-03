@@ -176,14 +176,14 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
     #
     # check if AMS operations had the expected result
     #
-    r = ams.difference_from_expected()  # returns 3 lists - after an unreasonable time again:
-                                        # not deleted from members
-                                        # not approved from pending applicants list": not_approved,
-                                        # not removed from pending applicants list"
-        # if these lists are empty - we are done
-        # otherwise here is what went wrong
 
     if members_operations is not None and pendings_operations is not None:
+        r = ams.difference_from_expected()  # returns 3 lists - after an unreasonable time again:
+                                            # not deleted from members
+                                            # not approved from pending applicants list": not_approved,
+                                            # not removed from pending applicants list"
+            # if these lists are empty - we are done
+            # otherwise here is what went wrong
         if type(r) is not str:
             for data in r.items():
                 if data[1]:
