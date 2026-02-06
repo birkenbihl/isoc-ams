@@ -81,7 +81,7 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
                                # headless controls weather the browser window will be opened
     global ams
 
-    ams = ISOC_AMS(
+    ams = ISOC_AMS(process_pendings
                    *isoc_de.ams_credentials,
                    headless=headless,
                    logfile=sys.stdout,

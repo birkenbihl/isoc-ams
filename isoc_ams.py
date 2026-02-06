@@ -91,9 +91,13 @@ CHANGELOG
         eliminate not required checks in difference_from_expected()
     Version 0.1.3
         tolerance against refused information e.g.members lists
+    Version 0.1.4
+        minor fixes
+    Version 0.1.5
+        minor fixes
 
 """
-__version__ = "0.1.4"
+__version__ = "0.1.5"
 
 from selenium import webdriver
 import selenium.common.exceptions
@@ -238,6 +242,10 @@ ARGUMENTS
             _options.add_argument("--headless=new")
         self._dryrun = dryrun
         _init_logging(logfile, debuglog)
+        self.approve_list = None
+        self.deny_list = None
+        self.delete_list = None
+
         self._ams = _ISOC_AMS()
 
 
@@ -621,6 +629,7 @@ class _ISOC_AMS(Driver):
 
         # get lists (in an extra "reports" tab)
         self.reports_link = reports_ref.get_attribute('href')
+        # self.reports_link = "https://community.internetsociety.org/leader/s/report/Report/Recent/"
         self.group_application_link = group_application_ref.get_attribute('href')
         self.reports_page_ready = (EC.element_to_be_clickable,
                                    "//table//lightning-button//button")
@@ -742,7 +751,6 @@ class _ISOC_AMS(Driver):
 
         if reader == self.get_pendings:
             tableselector = "table.uiVirtualDataTable tbody tr"
-            print("expecting metrics")
             total_elem = self.waitfor(
                 EC.presence_of_element_located,
                 "//force-list-view-manager-status-info/span/span",
