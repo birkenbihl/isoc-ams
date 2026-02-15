@@ -27,8 +27,6 @@ This app uses the isoc_de_ams module which provides the followin functions/prope
 import isoc_de_ams as isoc_de  # this is an interface similar to isoc_ams (but lightning fast and reliable)
 from isoc_ams import ISOC_AMS  # the ISOC_AMS class will do the job
 import isoc_ams
-import os
-from datetime import datetime
 import logging
 
 
@@ -37,16 +35,28 @@ global ams # the instatiation of the ISOC_AMS class.
 # we don't log to console if we run as cron job
 logfile = isoc_de.logfile
 
+def pendings_heuristics(pending):
+    for (mn, r) in isoc_de.no_ids.items():
+        if r["email"].lower() == pending["email"].lower():
+            return mn
+        if r["last name"].lower() in pending["name"]:
+            return mn
+
+
 def process_pendings():  # process pending applications sorting them into 4 lists
     actions = {
         "deny": {},      # list of applications to deny
         "approve": {},   # list of applications to approve
         "invite": {},    # list of applications to invite to become a Chapter member
+        "update_id": {}, # list of recovered isoc-ids
         "noop": {}       #  list of applications to leave as it is
         }
     for idx, pending in ams.pending_applications_list.items():  # walk through AMS pending applications
         if idx in isoc_de.members.keys():                       # if we have registered them as our member
             actions["approve"][idx] = pending                   # we can approve them on AMS
+        elif mn := pendings_heuristics(pending):                # if we have no ISOC-ID
+            actions["approve"][idx] = pending
+            actions["update_id"][mn] = idx
         elif idx in isoc_de.in_negotiations.keys() or \
                  idx in isoc_de.applications.keys():            # if we are negotiating with them
                                                                 # or they are in our local pendings list
@@ -62,7 +72,8 @@ def process_members():   # compare local list of members with AMS sorting them i
     actions = {
         "delete": {},    # delete member from AMS
         "add": {},       # ask ams-support to add this ISOC.ORG member as a Chapter member
-        "noop": {}       # all fine, nothing to change
+        "noop": {},       # all fine, nothing to change
+        "addid": {}
         }
     for idx, member in ams.members_list.items():                # walk through AMS Chapter members list
         if idx in list(isoc_de.members.keys()):                 # if member is registered locally
@@ -73,7 +84,7 @@ def process_members():   # compare local list of members with AMS sorting them i
         if idx not in ams.members_list.keys() and \
             idx not in ams.pending_applications_list.keys():    # if member is not registered as Chapter member with AMS
                                                                 # and not on AMS pending applications list
-            actions["add"][idx] = member                        # we ask AMS_support to add member as Chapter member
+            actions["addid"][idx] = member                      # we ask AMS_support to add member as Chapter member (os so)
     return actions
 
 
@@ -118,6 +129,10 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
         for k, v in pendings_operations["noop"].items():
             isoc_ams.log("        ", v["name"], v["email"],
                   v["date"].date().isoformat(), "("+k+")", date=False)
+        isoc_ams.log("\n   the following members we guessed the isoc-id:", date=False)
+        for k, v in pendings_operations["update_id"].items():
+            isoc_ams.log("        ",k ,v, isoc_de.no_ids[k], date=False)
+
     else:
         isoc_ams.strong_msg("No Pending Applications actions due to error", level=logging.ERROR)
     #
@@ -132,8 +147,8 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
         for k, v in members_operations["add"].items():
             isoc_ams.log("        ", v["first name"], v["last name"], v["email"], "("+k+")", date=False)
         isoc_ams.log("\n   for the following members we miss an ISOC-ID:", date=False)
-        for v in isoc_de.no_ids:
-            isoc_ams.log("        ", v["first name"], v["last name"], v["email"], date=False)
+        for k, v in isoc_de.no_ids.items():
+            isoc_ams.log("        ", k, v["first name"], v["last name"], v["email"], date=False)
 
         isoc_ams.log("\n   the following locally registered members are in sync with AMS:", date=False)
         # too many to print ...
@@ -158,20 +173,24 @@ def main(dryrun, headless, amsmail):    # dryrun will only build the lists but w
         if members_operations["delete"]:
             ams.delete_members(members_operations["delete"])
 
+
     #
     # other operations
     #
 
     if not dryrun:
+        if pendings_operations is not None:
+            if pendings_operations["invite"]:
+                for k, v in pendings_operations["invite"].items():
+                    isoc_de.invite(k, v)            # send an invitation mail
 
-        if pendings_operations["invite"]:
-            for k, v in pendings_operations["invite"].items():
-                isoc_de.invite(k, v)            # send an invitation mail
+            if pendings_operations["update_id"]:
+                isoc_de.set_isoc_ids(pendings_operations["update_id"])
 
         if members_operations is not None:
             if members_operations["add"] and amsmail:
                 # send a mail to ams_support to ask to have this list added to AMS Chapters members
-                isoc_de.mail_to_ams_support(members_operations["add"], isoc_de.no_ids)
+                isoc_de.mail_to_ams_support_or_us(members_operations["add"], isoc_de.no_ids)
 
     #
     # check if AMS operations had the expected result
@@ -228,11 +247,12 @@ if __name__ == "__main__":
         amsmail = False
 
 
-    if len(sys.argv) > maxargs:
+    if len(sys.argv) > maxargs or "--help" in sys.argv:
         print("usage:", sys.argv[0], "[-d | --dry] [-h | --head]")
         print("      ", "-d | --dry   dry run")
         print("      ", "-h | --head  don't run headless")
         print("      ", "-m | --amsmail  send mail to ams-support")
+        print("      ", "   | --help  show this help")
 
     else:
         main(dryrun, headless, amsmail)
