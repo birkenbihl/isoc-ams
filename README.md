@@ -266,7 +266,7 @@ Here the output:
 See file [isoc_ams.html](https://html-preview.github.io/?url=https://github.com/birkenbihl/isoc-ams/blob/main/isoc_ams.html) for doc on the API interface.
 
 ## Version 1.0 released (2026-03-13):
-###Summary of Changes:
+### Summary of Changes:
 
 ```
 isoc-ams has now the following (additional) options:
