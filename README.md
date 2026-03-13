@@ -288,7 +288,7 @@ Example Output of --export EXPORTfile option:
     "members": {
         "134596": {
             "action link": "https://community.internetsociety.org/leader/s/detail/xxx",
-            "email": "patrick@patfab.net",
+            "email": "xxx",
             "first name": "xxx",
             "last name": "xxx"
         },
