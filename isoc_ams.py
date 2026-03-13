@@ -40,16 +40,22 @@ CLASS
     ISOC_AMS will log you in to ISOC.ORG and check your authorization at
     instantiation.
 
+
+    To select a SELENIUM webdriver, the --driver argument can be used.
+    --driver=chrome
+
+    Default is firefox. Only firefox and chrome are allowed for now.
+
+
+DEPRECATED
     To select a webdriver, an ISOC_AMS_WEBDRIVER environment variable can be used.
     E.g.
         ISOC_AMS_WEBDRIVER=Firefox
 
-    Default is Firefox. Only Firefox and Chrome are allowed for now.
-
 FUNCTIONS
     3 functions are provided to support logging:
         log, dlog, strong_message
-    (see below)
+    (see below)ISOC_AMS_WEBDRIVER
 
 EXAMPLE
 
@@ -95,15 +101,13 @@ CHANGELOG
         minor fixes
     Version 0.1.5
         minor fixes
+    Version 1.0.1
+        add export / import, SELENIUM driver can be argument
 
 """
-__version__ = "0.1.5"
+__version__ = "1.0.1"
 
-from selenium import webdriver
-import selenium.common.exceptions
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.wait import WebDriverWait, TimeoutException
-from selenium.webdriver.support import expected_conditions as EC
+
 from datetime import datetime
 import logging
 
@@ -111,20 +115,35 @@ import io
 import time
 import sys
 import os
+import json
 
 _logger = logging.getLogger("AMS")
 _logger.setLevel(logging.DEBUG)
 
-_dr = os.environ.get("ISOC_AMS_WEBDRIVER", "firefox").lower()
 
-if  _dr == "firefox":
-    _options = webdriver.FirefoxOptions()
-    Driver = webdriver.Firefox
-elif _dr == "chrome":
-    _options = webdriver.ChromeOptions()
-    Driver = webdriver.Chrome
-else:
-    sys.exit("Selenium Driver " + _dr + " not implemented.")
+class SeleniumStuff:
+    def __init__(self, webdriver_name=None):
+        from selenium import webdriver
+        import selenium.common.exceptions as common_exceptions
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.wait import WebDriverWait, TimeoutException
+        from selenium.webdriver.support import expected_conditions as EC
+        self.common_exceptions = common_exceptions
+        self.By = By
+        self.WebDriverWait = WebDriverWait
+        self.TimeoutException = TimeoutException
+        self.EC = EC
+        self.driver_name = webdriver_name if webdriver_name else \
+            os.environ.get("ISOC_AMS_WEBDRIVER", "firefox").lower()
+        if  self.driver_name == "firefox":
+            self.options = webdriver.FirefoxOptions()
+            self.Driver = webdriver.Firefox
+        elif self.driver_name == "chrome":
+            self.options = webdriver.ChromeOptions()
+            self.Driver = webdriver.Chrome()
+        else:
+            sys.exit("Selenium Driver " + self.driver_name + " not implemented.")
+
 
 
 def _WaitForTextInElement(element):
@@ -209,7 +228,6 @@ ARGUMENTS
     log(x * "*", date=False, level=level)
 
 
-
 class ISOC_AMS:
     """Perform admin operations on a Chaper's members list stored in AMS.
 
@@ -217,7 +235,7 @@ DESCRIPTION
 
     This is the main class to interface with the ISOC-AMS system.
 
-    By default all operations run headless. If you want to follow it on
+    self._Selenium.By default all operations run headless. If you want to follow it on
     a browser window use headless=False.
 
 ARGUMENTS
@@ -226,59 +244,115 @@ ARGUMENTS
         logfile: where to write ISOC_AMS info-log output
         debuglog: where to write ISOC_AMS debug-level log output
         headless: run without GUI
+        driver: Name of SELENIUM driver
         dryrun: only check input, no actions
+        offline: read data from file instead of AMS database
+        export: write data from AMS database to file and exit
     """
+
 
     def __init__(self,
                  user: str,
                  password: str,
-                 logfile: io.TextIOBase | str | None = sys.stdout,
-                 debuglog: io.TextIOBase | str | None = None,
-                 headless: bool = True,
-                 dryrun:  bool = False,):
-        if _dr == "firefox" and headless:
-            _options.add_argument("--headless")
-        elif _dr == "chrome" and headless:
-            _options.add_argument("--headless=new")
-        self._dryrun = dryrun
-        _init_logging(logfile, debuglog)
+                 logfile: io.TextIOBase | str | None=sys.stdout,
+                 debuglog: io.TextIOBase | str | None=None,
+                 headless: bool=True,
+                 dryrun:  bool=False,
+                 driver: str="firefox",
+                 offline: io.TextIOBase | str | None=None,
+                 export: io.TextIOBase | str | None=None,):
+        def getFile(fname: str | None) -> io.TextIOBase | None:
+            return sys.stdin if fname == 'stdin' else \
+                   sys.stdout if fname == 'stdout' else \
+                   sys.stderr if fname == 'stderr' else \
+                   None if (fname == '-' or fname == '') else \
+                   fname
+
+        if not offline:
+            self._Selenium = SeleniumStuff(driver);
+            # print(self._Selenium.driver_name, headless)
+            if self._Selenium.driver_name == "firefox" and headless:
+                self._Selenium.options.add_argument("--headless")
+            elif self._Selenium.driver_name == "chrome" and headless:
+                self._Selenium.options.add_argument("--headless=new")
+            self._ams = _ISOC_AMS(self._Selenium)
+        else:
+            self._ams = _ISOC_AMS(None)
+        self.dryrun = dryrun or bool(offline)
+        _init_logging(getFile(logfile), getFile(debuglog))
         self.approve_list = None
         self.deny_list = None
         self.delete_list = None
-
-        self._ams = _ISOC_AMS()
-
-
-
-        if self._dryrun:
-            strong_msg("START DRYRUN:", "Version:", __version__, "Webdriver is", _dr)
+        self.export = getFile(export)
+        self.offline = getFile(offline)
+        # print(self.export)
+        if self.offline:
+            strong_msg("START OFFLINE (DRYRUN):", self.offline, "Version:", __version__)
+        elif self.export:
+            strong_msg("START EXPORT:", self.export, "Version:", __version__, "Webdriver is", self._Selenium.driver_name)
+        elif self.dryrun:
+            strong_msg("START DRYRUN:", "Version:", __version__, "Webdriver is", self._Selenium.driver_name)
         else:
-            strong_msg("START:", "Version:", __version__, "Webdriver is", _dr)
+            strong_msg("START:", "Version:", __version__, "Webdriver is", self._Selenium.driver_name)
 
-        try:
-            self._ams.login((user, password))
-        except selenium.common.exceptions.TimeoutException as e:
-            strong_msg("Timeout Error during login", e, level=logging.ERROR)
-            log("Will terminate")
-            exit(1)
+        if self.offline:
+            try:
+                if type(self.offline) is str:
+                    import_file = open(self.offline, "r")
+                else:
+                    import_file = self.offline
+                t = json.load(import_file)
+                import_file.close()
+                self._members_list = t["members"]
+                self._pending_applications_list  = t["pendings"]
+                for e in self._pending_applications_list.values():
+                    e["date"] = datetime.fromisoformat(e["date"])
+            except(KeyError, FileNotFoundError, json.JSONDecodeError) as e:
+                print(e)
+                exit(2)
+            strong_msg("Offline Data read, ", len(self._members_list), "member(s)", len(self._pending_applications_list), "pending application(s)" )
 
-        try:
-            self._members_list = self._ams.build_members_list()
-        except selenium.common.exceptions.TimeoutException as e:
-            self._members_list = None
-            strong_msg("Timeout Error during build members list", e, level=logging.ERROR)
-            log("no need to exit here we still can approve or reject applicants")
-            #
-            # no need to exit here we still can approve or reject applicants
-            #
+        else:
+            try:
+                self._ams.login((user, password))
+            except self._Selenium.common_exceptions.TimeoutException as e:
+                strong_msg("Timeout Error during login", e, level=logging.ERROR)
+                log("Will terminate")
+                exit(1)
 
-        try:
-            self._pending_applications_list = self._ams.build_pending_applicants_list()
-        except selenium.common.exceptions.TimeoutException as e:
-            self._pending_applications_list = None
-            strong_msg("Timeout Error during build pending applications list", e, level=logging.ERROR)
-            log("Will terminate")
-            exit(2)
+            try:
+                self._members_list = self._ams.build_members_list()
+            except self._Selenium.common_exceptions.TimeoutException as e:
+                self._members_list = None
+                strong_msg("Timeout Error during build members list", e, level=logging.ERROR)
+                log("no need to exit here we still can approve or reject applicants")
+                #
+                # no need to exit here we still can approve or reject applicants
+                #
+
+            try:
+                self._pending_applications_list = self._ams.build_pending_applicants_list()
+            except self._Selenium.common_exceptions.TimeoutException as e:
+                self._pending_applications_list = None
+                strong_msg("Timeout Error during build pending applications list", e, level=logging.ERROR)
+                log("Will terminate")
+                exit(2)
+
+            if self.export:
+                strong_msg("writes AMS-Data to ", self.export, " and EXIT")
+                if type(self.export) is str:
+                    export_file = open(self.export, "w")
+                else:
+                    export_file = self.export
+                json.dump({"members" : self._members_list,
+                           "pendings" : self._pending_applications_list },
+                          export_file,
+                          indent=4,
+                          sort_keys=True,
+                          default=str)
+                export_file.close()
+                exit(0)
+
 
     @property
     def members_list(self) -> dict | None:
@@ -342,7 +416,7 @@ ARGUMENTS
         for deletee in map(str, delete_list):
             if deletee in self._members_list:
                 deletee = str(deletee)
-                if not self._dryrun:
+                if not self.dryrun:
                     self._ams.delete(self._members_list[deletee])
                 log("Deleted", deletee,
                     self._members_list[deletee]["first name"],
@@ -370,10 +444,10 @@ ARGUMENTS
         for approvee in map(str, approve_list):
             if approvee in self._pending_applications_list:
                 if approvee not in self._members_list:
-                    if not self._dryrun:
+                    if not self.dryrun:
                         try:
                             self._ams.approve(self._pending_applications_list[approvee])
-                        except selenium.common.exceptions.TimeoutException as e:
+                        except self._Selenium.common_exceptions.TimeoutException as e:
                             log("Timeout during approval of",
                                 self._pending_applications_list[approvee]["name"],
                                 e,
@@ -411,11 +485,11 @@ ARGUMENTS
         self.deny_list = deny_list
         for denyee in map(str, deny_list):
             if denyee in self._pending_applications_list:
-                if not self._dryrun:
+                if not self.dryrun:
                     try:
                         self._ams.deny(self._pending_applications_list[denyee],
                                        reason)
-                    except selenium.common.exceptions.TimeoutException as e:
+                    except self._Selenium.common_exceptions.TimeoutException as e:
                         log("Timeout during denial of",
                             self._pending_applications_list[denyee]["name"],
                             e,
@@ -452,7 +526,7 @@ RETURNS
             }
     Or a string with the result of the comoarision.
         """
-        if not self._dryrun:
+        if not self.dryrun:
 
             log(date=False)
 
@@ -509,47 +583,54 @@ RETURNS
             dlog("DRYRUN: No results expected")
             return "Dryrun: No results expected"
 
-class _ISOC_AMS(Driver):
+class _ISOC_AMS():
 
-    def __init__(self, logfile: str = sys.stdout):
+    def __init__(self, Selenium, logfile: str = sys.stdout):
 
-        super().__init__(_options)
+        if Selenium:
+            self.Selenium = Selenium
+            self._S = Selenium.Driver(Selenium.options)
+        else:
+            self._S = None
         self.windows = {}
 
         #-------------------------------------------------------
 
     def __del__(self):
-        self.quit()
+        if self._S:
+            self._S.quit()
 
     def activate_window(self, name: str, url: str | None = None, refresh: bool = False):
         if self.windows.get(name):
             dlog("switching to window", name)
-            self.switch_to.window(self.windows[name])
+            self._S.switch_to.window(self.windows[name])
             if refresh:
-                self.navigate().refresh()
+                self._S.navigate().refresh()
             if url:
-                self.get(url)
+                self._S.get(url)
             return True
         elif url:
             dlog("switching to NEW window", name)
-            self.switch_to.new_window('tab')
-            self.windows[name] = self.current_window_handle
-            self.get(url)
+            self._S.switch_to.new_window('tab')
+            self.windows[name] = self._S.current_window_handle
+            self._S.get(url)
             return True
         else:
             sys.exit('neither name nor url specified for "activate_window"'
                      'or window "' + name + '" not found')
 
 
-    def waitfor(self, cond, val, timeout=20, message="", by=By.XPATH):
+    def waitfor(self, cond, val, timeout=20, message="", by=None):
+        if not by:
+            by = self.Selenium.By.XPATH
         try:
             if val:
-                elem = WebDriverWait(self, timeout).until(
+                elem = self.Selenium.WebDriverWait(self._S, timeout).until(
                     cond((by, val)))
             else:
-                elem = WebDriverWait(self, timeout).until(cond)
+                elem = self.Selenium.WebDriverWait(self._S, timeout).until(cond)
             return elem
-        except TimeoutException as e:
+        except self.Selenium.TimeoutException as e:
             strong_msg(message, e, level=logging.ERROR)
             raise
 
@@ -564,35 +645,35 @@ class _ISOC_AMS(Driver):
         log("logging in")
 
         # go to community home page after succesfullogin
-        self.get("https://community.internetsociety.org/s/home-community")
+        self._S.get("https://community.internetsociety.org/s/home-community")
         # login
-        elem = self.waitfor(EC.element_to_be_clickable,
+        elem = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                             "next",
-                            by=By.ID,
+                            by=self.Selenium.By.ID,
                             message="timelimit exceeded while waiting "
                             "for login page to complete")
         # we use JS to fill the logi form, since sendkeys doesn'twork properly
-        self.execute_script(
+        self._S.execute_script(
             "document.getElementById('signInName').value='%s';"
             "document.getElementById('password').value='%s';"
             "arguments[0].click();"
             % credentials,
             elem)
 
-        # self.set_window_size(1600, 300)
+        # self._S.set_window_size(1600, 300)
         dlog("log in started")
         # community portal
-        # self.waitfor(EC.presence_of_element_located,
+        # self.waitfor(self.Selenium.EC.presence_of_element_located,
         #              "siteforceStarterBody",
-        #              by=By.CLASS_NAME,
+        #              by=self.Selenium.By.CLASS_NAME,
         #              message=)
 
         try:
-            elem = WebDriverWait(self, 10).until(
-                EC.any_of(
-                  EC.presence_of_element_located((By.CLASS_NAME, "siteforceStarterBody")),
-                  EC.visibility_of_element_located((By.CSS_SELECTOR, "form div.error p"))))
-        except TimeoutException:
+            elem = self.Selenium.WebDriverWait(self._S, 10).until(
+                self.Selenium.EC.any_of(
+                  self.Selenium.EC.presence_of_element_located((self.Selenium.By.CLASS_NAME, "siteforceStarterBody")),
+                  self.Selenium.EC.visibility_of_element_located((self.Selenium.By.CSS_SELECTOR, "form div.error p"))))
+        except self.Selenium.TimeoutException:
             strong_msg("timelimit exceeded while waiting "
                        "for Community portal to open", level=logging.ERROR)
             raise
@@ -603,11 +684,11 @@ class _ISOC_AMS(Driver):
         dlog("now on community portal")
 
         # open chapter Leader Portal
-        self.get("https://community.internetsociety.org/leader")
+        self._S.get("https://community.internetsociety.org/leader")
         dlog("waiting for Chapter Leader portal")
 
         # look if menue appears to be ready (and grab link to reports page)
-        reports_ref = self.waitfor(EC.element_to_be_clickable,
+        reports_ref = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                                    "//a[starts-with(@href,"
                                    "'/leader/s/report/')]",
                                    message="timelimit exceeded while waiting "
@@ -616,14 +697,14 @@ class _ISOC_AMS(Driver):
         # since group applications from the report page don't provide an ISOC ID
         # we need it from the leader page menue
         group_application_ref = self.waitfor(
-            EC.element_to_be_clickable,
+            self.Selenium.EC.element_to_be_clickable,
             "//a[starts-with(@href,"
             "'/leader/s/isoc-group-application/')]",
             message="timelimit exceeded while waiting "
             "for Chapter Leader portal to open"
             )
 
-        self.windows["leader"] = self.current_window_handle
+        self.windows["leader"] = self._S.current_window_handle
         log("Now on Chapter Leader portal")
         log(date=False)
 
@@ -631,7 +712,7 @@ class _ISOC_AMS(Driver):
         self.reports_link = reports_ref.get_attribute('href')
         # self.reports_link = "https://community.internetsociety.org/leader/s/report/Report/Recent/"
         self.group_application_link = group_application_ref.get_attribute('href')
-        self.reports_page_ready = (EC.element_to_be_clickable,
+        self.reports_page_ready = (self.Selenium.EC.element_to_be_clickable,
                                    "//table//lightning-button//button")
 #
 #   functions to aquire data
@@ -679,7 +760,7 @@ class _ISOC_AMS(Driver):
         dlog("Creating page for Pending Applications")
         msg = "timelimit exceeded while waiting " \
             "for report page for Pending Application report"
-        cond = (EC.presence_of_element_located,
+        cond = (self.Selenium.EC.presence_of_element_located,
 #                "table.slds-table td.cellcontainer a.forceOutputLookup")
                 "table")
         self.activate_window("report",
@@ -696,33 +777,33 @@ class _ISOC_AMS(Driver):
             "for report page for " + subject + " report"
         self.activate_window("report",
                              url=self.reports_link)
-        elem = WebDriverWait(self, 30).until(EC.element_to_be_clickable((
-            By.XPATH,
+        elem = self.Selenium.WebDriverWait (self._S,30).until(self.Selenium.EC.element_to_be_clickable((
+            self.Selenium.By.XPATH,
             "//table//lightning-button"
             "//button[@title='%s']" % button_title)
             ))
         time.sleep(1)
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
         dlog(subject, "page created")
 
     def load_report(self, subject):
         dlog("Loading", subject)
-        cond = EC.presence_of_element_located;
+        cond = self.Selenium.EC.presence_of_element_located;
         val = "iframe"
         msg = "timelimit exceeded while waiting " \
               "waiting for list of " + subject
-        iframe = self.waitfor(EC.presence_of_element_located, "iframe.isView",
-                     message=msg, timeout=30, by=By.CSS_SELECTOR)
+        iframe = self.waitfor(self.Selenium.EC.presence_of_element_located, "iframe.isView",
+                     message=msg, timeout=30, by=self.Selenium.By.CSS_SELECTOR)
 
         # this is so strange: this page doesnt hold all columns (fields) if
         # they don't fit on the iframe. So we have to set a new (big) width
         # to receive the required data
-        self.execute_script('arguments[0].style.width = "4000px";', iframe)
+        self._S.execute_script('arguments[0].style.width = "4000px";', iframe)
 
-        WebDriverWait(self, 5).until(
-            EC.frame_to_be_available_and_switch_to_it((By.CSS_SELECTOR,
+        self.Selenium.WebDriverWait(self._S, 5).until(
+            self.Selenium.EC.frame_to_be_available_and_switch_to_it((self.Selenium.By.CSS_SELECTOR,
                                                        "iframe.isView")))
-        self.waitfor(EC.presence_of_element_located, "//table//tbody//td",
+        self.waitfor(self.Selenium.EC.presence_of_element_located, "//table//tbody//td",
                      message=msg)
         dlog("got list of", subject)
 
@@ -752,20 +833,20 @@ class _ISOC_AMS(Driver):
         if reader == self.get_pendings:
             tableselector = "table.uiVirtualDataTable tbody tr"
             total_elem = self.waitfor(
-                EC.presence_of_element_located,
+                self.Selenium.EC.presence_of_element_located,
                 "//force-list-view-manager-status-info/span/span",
                 message="timeout waiting for Metrics",
                 timeout=30)
         else:
             tableselector = "table.data-grid-full-table tbody tr"
-            self.waitfor(EC.presence_of_element_located,
+            self.waitfor(self.Selenium.EC.presence_of_element_located,
                          "span.metricsAnnouncement",
-                         by=By.CSS_SELECTOR,
+                         by=self.Selenium.By.CSS_SELECTOR,
                          message="timeout waiting for Metrics",
                          timeout=30)
             total_selector = "div.metricsValue"
-            total_elem = self.find_element(By.CSS_SELECTOR, total_selector)
-        WebDriverWait(self, 10).until(_WaitForTextInElement(total_elem))
+            total_elem = self._S.find_element(self.Selenium.By.CSS_SELECTOR, total_selector)
+        self.Selenium.WebDriverWait(self._S, 10).until(_WaitForTextInElement(total_elem))
         total = getint(total_elem.text)
         dlog("Total (records expected):", total)
         dlog("Waiting for Total to stabilise")
@@ -776,8 +857,8 @@ class _ISOC_AMS(Driver):
         data = {}
         while total > len(data):
             time.sleep(3)
-            rows = self.find_elements(
-                By.CSS_SELECTOR, tableselector)
+            rows = self._S.find_elements(
+                self.Selenium.By.CSS_SELECTOR, tableselector)
             dlog("calling reader with", len(rows), "table rows, ",
                   "(collected records so far:", len(data),")")
             scr_to = reader(rows, data)
@@ -785,14 +866,14 @@ class _ISOC_AMS(Driver):
                 total = getint(total_elem.text)
                 dlog("Total was updated, now:", total)
             if len(data) < total:
-                self.execute_script('arguments[0].scrollIntoView(true);', scr_to)
+                self._S.execute_script('arguments[0].scrollIntoView(true);', scr_to)
             else:
                 dlog("records collected / total", len(data), " /", total)
                 return data
 
     def get_members(self, rows, members):
         for row in rows:
-            cells = row.find_elements(By.CSS_SELECTOR, "td")
+            cells = row.find_elements(self.Selenium.By.CSS_SELECTOR, "td")
             if cells and cells[0].text and cells[0].text not in members.keys():
                 member = {}
                 member["first name"] = cells[1].text
@@ -804,12 +885,12 @@ class _ISOC_AMS(Driver):
 
     def get_member_contacts(self, rows, members):
         for row in rows:
-            cells = row.find_elements(By.CSS_SELECTOR, "td")
+            cells = row.find_elements(self.Selenium.By.CSS_SELECTOR, "td")
             if cells and \
                     len(cells) > 11 and \
                     cells[11].text and \
                     cells[11].text not in members.keys():
-                lnk = cells[1].find_element(By.CSS_SELECTOR, "a[href]"). \
+                lnk = cells[1].find_element(self.Selenium.By.CSS_SELECTOR, "a[href]"). \
                     get_attribute('href')
                 members[cells[11].text] = lnk
             orow = row
@@ -817,16 +898,16 @@ class _ISOC_AMS(Driver):
 
     def get_pendings(self, rows, pendings):
         for row in rows:
-            cells = row.find_elements(By.CSS_SELECTOR, ".slds-cell-edit")
+            cells = row.find_elements(self.Selenium.By.CSS_SELECTOR, ".slds-cell-edit")
             if cells and cells[3].text:
                 pending = {}
                 pending["name"] = cells[4].text
                 pending["email"] = cells[5].text
                 # pending["contact link"] = cells[4]. \
-                #     find_element(By.CSS_SELECTOR, "a[href]"). \
+                #     find_element(self.Selenium.By.CSS_SELECTOR, "a[href]"). \
                 #         get_attribute('href')
                 pending["action link"] = cells[3]. \
-                    find_element(By.CSS_SELECTOR, "a[href]"). \
+                    find_element(self.Selenium.By.CSS_SELECTOR, "a[href]"). \
                         get_attribute('href')
                 pending["date"] = datetime.strptime(
                     cells[10].text, "%m/%d/%Y")
@@ -846,7 +927,7 @@ class _ISOC_AMS(Driver):
         self.activate_window("action",
                              url=entry["action link"])
 
-        elem = self.waitfor(EC.element_to_be_clickable,
+        elem = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                             '//button'
                             '[contains(text(),'
                             '"Deny Applicant")]',
@@ -855,33 +936,33 @@ class _ISOC_AMS(Driver):
                             entry["name"] + " to complete")
 
         time.sleep(1)  # for what ist worth?
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
 
-        d_close = WebDriverWait(self, 10, 0.3). \
-                until(EC.presence_of_element_located((
-                    By.CSS_SELECTOR, 'button.slds-modal__close')))
+        d_close = self.Selenium.WebDriverWait(self._S, 10, 0.3). \
+                until(self.Selenium.EC.presence_of_element_located((
+                    self.Selenium.By.CSS_SELECTOR, 'button.slds-modal__close')))
 
         dlog("select a reason for denial to feed AMS's couriosity")
-        elem = self.waitfor(EC.element_to_be_clickable,
+        elem = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                             "//div"
                             "[contains(concat(' ',normalize-space(@class),' '),"
                             "'slds-dropdown-trigger')]",
                             message="timelimit exceeded while waiting "
                             "for deny reason box")
         time.sleep(1)  # for what ist worth?
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
 ###
         dlog("Waiting for combobox, chose 'other'")
 
-        elem = self.waitfor(EC.element_to_be_clickable,
+        elem = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                             "//lightning-base-combobox-item"
                             "[@data-value='Other']",
                             message="timelimit exceeded while waiting "
                             "for deny reason 'Other'")
         time.sleep(1)  # for what ist worth?
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
 
-        elem = self.waitfor(EC.presence_of_element_located,
+        elem = self.waitfor(self.Selenium.EC.presence_of_element_located,
                             "//flowruntime-record-field"
                             "//lightning-primitive-input-simple"
                             "//input",
@@ -890,20 +971,20 @@ class _ISOC_AMS(Driver):
         log(f"we'll give '{reason}' as reason")
         time.sleep(1)
         # elem.send_keys(reason)
-        self.execute_script(f'arguments[0].value="{reason}";', elem)
+        self._S.execute_script(f'arguments[0].value="{reason}";', elem)
         dlog("finally click next")
 
-        elem = self.waitfor(EC.element_to_be_clickable,
+        elem = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                             "//flowruntime-navigation-bar"
                             "/footer"
                             "//lightning-button/button",
                             message="timelimit exceeded while waiting "
                             "for 'Next' button to complete")
         time.sleep(2)  # for what ist worth?
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
         try:
-            WebDriverWait(self, 15).until(EC.staleness_of(d_close))
-        except TimeoutException:
+            self.Selenium.WebDriverWait(self._S, 15).until(self.Selenium.EC.staleness_of(d_close))
+        except self.Selenium.TimeoutException:
             strong_msg("Timeout: Maybe operation was not performed")
             log(date=False)
             return False
@@ -917,7 +998,7 @@ class _ISOC_AMS(Driver):
         self.activate_window("action",
                              url=entry["action link"])
 
-        elem = self.waitfor(EC.presence_of_element_located,
+        elem = self.waitfor(self.Selenium.EC.presence_of_element_located,
                             '//button'
                             '[contains(text(),'
                             '"Approve Applicant")]',
@@ -927,25 +1008,25 @@ class _ISOC_AMS(Driver):
 
         dlog("starting with approval")
         time.sleep(1)  # for what ist worth?
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
 
-        d_close = WebDriverWait(self, 10, 0.3). \
-                until(EC.presence_of_element_located((
-                    By.CSS_SELECTOR, 'button.slds-modal__close')))
+        d_close = self.Selenium.WebDriverWait(self._S, 10, 0.3). \
+                until(self.Selenium.EC.presence_of_element_located((
+                    self.Selenium.By.CSS_SELECTOR, 'button.slds-modal__close')))
 
         dlog("finally click next")
-        elem = self.waitfor(EC.element_to_be_clickable,
+        elem = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                             "//flowruntime-navigation-bar"
                             "/footer"
                             "//lightning-button/button",
                             message="timelimit exceeded while waiting "
                             "for 'Next' button to complete")
         time.sleep(1)  # for what ist worth?
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
 
         try:
-            WebDriverWait(self, 15).until(EC.staleness_of(d_close))
-        except TimeoutException:
+            self.Selenium.WebDriverWait(self._S, 15).until(self.Selenium.EC.staleness_of(d_close))
+        except self.Selenium.TimeoutException:
             strong_msg("Timeout: Maybe operation was not performed",
                        level=logging.ERROR)
             log(date=False)
@@ -962,7 +1043,7 @@ class _ISOC_AMS(Driver):
         self.activate_window("action",
                              url=entry["action link"])
 
-        elem = self.waitfor(EC.element_to_be_clickable,
+        elem = self.waitfor(self.Selenium.EC.element_to_be_clickable,
                             "//runtime_platform_actions-action-renderer"
                             "[@title='Terminate']"
                             "//button",
@@ -971,15 +1052,15 @@ class _ISOC_AMS(Driver):
                             name + " to complete")
 
         time.sleep(1)  # for what ist worth?
-        self.execute_script('arguments[0].click();', elem)
+        self._S.execute_script('arguments[0].click();', elem)
 
-        d_close = WebDriverWait(self, 10, 0.3). \
-                until(EC.presence_of_element_located((
-                    By.CSS_SELECTOR, 'button.slds-modal__close')))
+        d_close = self.Selenium.WebDriverWait(self._S, 10, 0.3). \
+                until(self.Selenium.EC.presence_of_element_located((
+                    self.Selenium.By.CSS_SELECTOR, 'button.slds-modal__close')))
 
         try:
-            WebDriverWait(self, 15).until(EC.staleness_of(d_close))
-        except TimeoutException:
+            self.Selenium.WebDriverWait(self._S, 15).until(self.Selenium.EC.staleness_of(d_close))
+        except self.Selenium.TimeoutException:
             strong_msg("Timeout: Maybe operation was not performed",
                        level=logging.ERROR)
             log(date=False)
@@ -988,41 +1069,50 @@ class _ISOC_AMS(Driver):
         return True
 
 
-if __name__ == "__main__":
+if __name__ == "__main__" or "shtab" in sys.argv[0]:
+    import argparse
     from getpass import getpass
-    headless = True
-    if "-h" in sys.argv:
-        headless = False
-    inp = False
-    if "-i" in sys.argv:
-        inp = True
-    dryrun = False
-    if "-d" in sys.argv:
-        dryrun = True
-    debug = False
-    if "--debug" in sys.argv:
-        debug = True
 
-    print("Username", end=":")
-    user_id = input()
-    password = getpass()
-    if debug:
-        ams = ISOC_AMS(
-            user_id,
-            password,
-            headless=headless,
-            dryrun=dryrun,
-            logfile=sys.stdout,
-            debuglog=None,
-            )
-    else:
-        ams = ISOC_AMS(
-            user_id,
-            password,
-            headless=headless,
-            dryrun=dryrun,
-            logfile=sys.stdout,
-            )
+    parser = argparse.ArgumentParser(
+        add_help=False,
+        formatter_class=argparse.RawDescriptionHelpFormatter
+    )
+
+    parser.add_argument("-h", "--head", help='show browser window', action='store_true')
+    parser.add_argument("-i", "--input", help='read commands from stdin', action='store_true')
+    parser.add_argument("-d", "--dryrun", help='just run without modifying any data', action='store_true')
+    parser.add_argument("--debuglog", help='file for detailed log')
+    parser.add_argument("--logfile", help='file for log', default="stdout")
+    parser.add_argument("-e", "--export", help='output AMS data to this JSON file and exit')
+    parser.add_argument("-o", "--offline", help='read (fake) AMS data from this JSON file and run dry')
+    parser.add_argument("-u", "--user", help='ISOC.ORG login - your user_id')
+    parser.add_argument("-p", "--password", help='ISOC.ORG login - your password')
+    parser.add_argument("--driver", help='Selenium driver', choices=["firefox", "chrome"], default="")
+    parser.add_argument("--help", help='Show this help',  action='store_true')
+
+    args = parser.parse_args()
+    if args.help:
+        parser.print_help()
+        sys.exit(0)
+    if not args.offline and not args.user:
+        print("Username", end=":")
+        args.user = input()
+    if not args.offline and not args.password:
+        args.password = getpass()
+    # print(args)
+
+    ams = ISOC_AMS(
+        args.user,
+        args.password,
+        headless=not args.head,
+        dryrun=args.dryrun or bool(args.offline),
+        debuglog=args.debuglog,
+        logfile=args.logfile,
+        export=args.export,
+        offline=args.offline,
+        driver=args.driver.lower()
+        )
+
     members = ams.members_list
     pendings = ams.pending_applications_list
 
@@ -1039,7 +1129,7 @@ if __name__ == "__main__":
         # print(i, k, v)
         log(i, k, v["name"], v["email"], v["date"].isoformat()[:10], date=False)
 
-    if inp:
+    if args.input:
         log('READING COMMANDS:')
         import re
         patt = re.compile(r'(approve|deny|delete):?\s*([\d, ]+)')

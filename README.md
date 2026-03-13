@@ -55,7 +55,7 @@ Recommended to use a virtual environment (venv).
 
 ## Running isoc_ams
 
-### Choosing a Webdriver
+### Choosing a Webdriver (deprecated)
 You may select a Webdriver of your choice (provided it is one of "firefox" or "chrome") by setting an environment variable ISOC_AMS_WEBDRIVER e.g.:
 ```bash
 ISOC_AMS_WEBDRIVER=firefox
@@ -236,7 +236,7 @@ Here the output:
    the following members will be deleted from AMS: 
          ...
 
-   for the following members a nagging mail will be sent to AMS-support (we are not authorized to fix it!): 
+   the following members are not registered Chapter members with AMS: 
          ...
 
    the following locally registered members are in sync with AMS: 
@@ -263,28 +263,70 @@ Here the output:
 2025-07-15 14:16:06 - INFO - everything OK
 ```
 
-The mail to be send to AMS-support team might look like this:
-
-Dear AMS-support team,
-
-this is an automatic, complimentary Message from the ISOC German Chapter
-Members Administration System (ISOC.DE MAS).
-
-Assuming you are interested in making ISOC AMS consistent, the purpose
-of this message is to help you with valid, up-to-date data.
-
-The following individuals are legally registered paying members
-of ISOC.DE - many of them for more than 25 years. They all are
-also registered as ISOC (global) members. Unfortunately they are
-not registered with AMS as members of ISOC.DE. Even more we are
-not authorized to fix this. So we forward this data to your attention:
-
-   Uwe Mayer, xxx@yyy.com (ISOC-ID=1234567)
-   ...
-   
-Thank you,
-
-Your ISOC.DE MAS support team
-
 See file [isoc_ams.html](https://html-preview.github.io/?url=https://github.com/birkenbihl/isoc-ams/blob/main/isoc_ams.html) for doc on the API interface.
 
+## Version 1.0 released (2026-03-13):
+###Summary of Changes:
+
+```
+isoc-ams has now the following (additional) options:
+  -h  --head            show browser window during run
+  -i  --input           read commands from stdin
+  -d  --dryrun          just run without modifying any data
+      --debuglog DEBUGLOG   file for detailed log
+      --logfile LOGFILE     file for log
+  -e  --export EXPORTfile   output AMS data to this JSON file and exit
+  -o  --offline OFFLINEfile read (fake) AMS data from this JSON file and run dry (saves a lot of time when testing)
+  -u  --user USER           ISOC.ORG login - your user_id
+  -p  --password PASSWORD   ISOC.ORG login - your password
+  --driver {firefox,chrome} Selenium driver
+  --help                Show this help
+```
+Example Output of --export EXPORTfile option:
+```json
+{
+    "members": {
+        "134596": {
+            "action link": "https://community.internetsociety.org/leader/s/detail/xxx",
+            "email": "patrick@patfab.net",
+            "first name": "xxx",
+            "last name": "xxx"
+        },
+        "139779": {
+            "action link": "https://xxx",
+            "email": "xxx",
+            "first name": "xxx",
+            "last name": "xxx"
+        },
+        "155522": {
+            "action link": "https://xxx",
+            "email": "xxx",
+            "first name": "xxx",
+            "last name": "xxx"
+        },
+     ...
+    }
+    "pendings": {
+        "2352": {
+            "action link": "https://xxx",
+            "date": "2026-03-07 00:00:00",
+            "email": "xxxxxxx",
+            "name": "xxxxxxx"
+        },
+        "2360": {
+            "action link": "https://xxx",
+            "date": "2026-03-12 00:00:00",
+            "email": "xxx",
+            "name": "xxx"
+        }
+    }
+}
+```
+
+
+*Now deprecated* (use --driver DRIVER option instead):
+You may select a Webdriver of your choice (provided it is one of "firefox" or "chrome") by setting an environment variable ISOC_AMS_WEBDRIVER e.g.:
+```bash
+ISOC_AMS_WEBDRIVER=firefox
+```
+To send an E-Mail to AMS team ref. missing CHapter members in AMS is no longer suggested.

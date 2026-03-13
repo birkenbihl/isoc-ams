@@ -6,7 +6,7 @@
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="heading">
 <tr bgcolor="#7799ee">
 <td valign=bottom>&nbsp;<br>
-<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>isoc_ams</strong></big></big> (version 0.1.1)</font></td
+<font color="#ffffff" face="helvetica, arial">&nbsp;<br><big><big><strong>isoc_ams</strong></big></big> (version 1.0.0)</font></td
 ><td align=right valign=bottom
 ><font color="#ffffff" face="helvetica, arial"><a href=".">index</a><br><a href="file:/home/klaus/bin/python/isoc-ams/isoc_ams.py">/home/klaus/bin/python/isoc-ams/isoc_ams.py</a></font></td></tr></table>
     <p><tt>Extract&nbsp;or&nbsp;modify&nbsp;Chapter&nbsp;Data&nbsp;of&nbsp;the&nbsp;ISOC&nbsp;AMS&nbsp;(Salesforce)&nbsp;Database.<br>
@@ -47,16 +47,22 @@ CLASS<br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;will&nbsp;log&nbsp;you&nbsp;in&nbsp;to&nbsp;ISOC.ORG&nbsp;and&nbsp;check&nbsp;your&nbsp;authorization&nbsp;at<br>
 &nbsp;&nbsp;&nbsp;&nbsp;instantiation.<br>
 &nbsp;<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;To&nbsp;select&nbsp;a&nbsp;SELENIUM&nbsp;webdriver,&nbsp;the&nbsp;--driver&nbsp;argument&nbsp;can&nbsp;be&nbsp;used.<br>
+&nbsp;&nbsp;&nbsp;&nbsp;--driver=chrome<br>
+&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;firefox.&nbsp;Only&nbsp;firefox&nbsp;and&nbsp;chrome&nbsp;are&nbsp;allowed&nbsp;for&nbsp;now.<br>
+&nbsp;<br>
+&nbsp;<br>
+DEPRECATED<br>
 &nbsp;&nbsp;&nbsp;&nbsp;To&nbsp;select&nbsp;a&nbsp;webdriver,&nbsp;an&nbsp;ISOC_AMS_WEBDRIVER&nbsp;environment&nbsp;variable&nbsp;can&nbsp;be&nbsp;used.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;E.g.<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ISOC_AMS_WEBDRIVER=Firefox<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;Default&nbsp;is&nbsp;Firefox.&nbsp;Only&nbsp;Firefox&nbsp;and&nbsp;Chrome&nbsp;are&nbsp;allowed&nbsp;for&nbsp;now.<br>
-&nbsp;<br>
 FUNCTIONS<br>
 &nbsp;&nbsp;&nbsp;&nbsp;3&nbsp;functions&nbsp;are&nbsp;provided&nbsp;to&nbsp;support&nbsp;logging:<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;log,&nbsp;dlog,&nbsp;strong_message<br>
-&nbsp;&nbsp;&nbsp;&nbsp;(see&nbsp;below)<br>
+&nbsp;&nbsp;&nbsp;&nbsp;(see&nbsp;below)ISOC_AMS_WEBDRIVER<br>
 &nbsp;<br>
 EXAMPLE<br>
 &nbsp;<br>
@@ -93,7 +99,17 @@ CHANGELOG<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Improved&nbsp;logging<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minor&nbsp;bug&nbsp;fixes<br>
 &nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;0.1.1<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minor&nbsp;bug&nbsp;fixes</tt></p>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minor&nbsp;bug&nbsp;fixes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;0.1.2<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;eliminate&nbsp;not&nbsp;required&nbsp;checks&nbsp;in&nbsp;difference_from_expected()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;0.1.3<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;tolerance&nbsp;against&nbsp;refused&nbsp;information&nbsp;e.g.members&nbsp;lists<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;0.1.4<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minor&nbsp;fixes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;0.1.5<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;minor&nbsp;fixes<br>
+&nbsp;&nbsp;&nbsp;&nbsp;Version&nbsp;1.0<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;add&nbsp;export&nbsp;/&nbsp;import,&nbsp;SELENIUM&nbsp;driver&nbsp;can&nbsp;be&nbsp;argument</tt></p>
 <p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#aa55cc">
@@ -101,14 +117,13 @@ CHANGELOG<br>
 <font color="#ffffff" face="helvetica, arial"><big><strong>Modules</strong></big></font></td></tr>
     
 <tr><td bgcolor="#aa55cc"><tt>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</tt></td><td>&nbsp;</td>
-<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="selenium.webdriver.support.expected_conditions.html">selenium.webdriver.support.expected_conditions</a><br>
-<a href="io.html">io</a><br>
+<td width="100%"><table width="100%" summary="list"><tr><td width="25%" valign=top><a href="io.html">io</a><br>
+<a href="json.html">json</a><br>
 </td><td width="25%" valign=top><a href="logging.html">logging</a><br>
 <a href="os.html">os</a><br>
 </td><td width="25%" valign=top><a href="sys.html">sys</a><br>
 <a href="time.html">time</a><br>
-</td><td width="25%" valign=top><a href="selenium.webdriver.html">selenium.webdriver</a><br>
-</td></tr></table></td></tr></table><p>
+</td><td width="25%" valign=top></td></tr></table></td></tr></table><p>
 <table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
 <tr bgcolor="#ee77aa">
 <td colspan=3 valign=bottom>&nbsp;<br>
@@ -120,6 +135,7 @@ CHANGELOG<br>
 </font></dt><dd>
 <dl>
 <dt><font face="helvetica, arial"><a href="isoc_ams.html#ISOC_AMS">ISOC_AMS</a>
+</font></dt><dt><font face="helvetica, arial"><a href="isoc_ams.html#SeleniumStuff">SeleniumStuff</a>
 </font></dt></dl>
 </dd>
 </dl>
@@ -130,7 +146,7 @@ CHANGELOG<br>
 <font color="#000000" face="helvetica, arial"><a name="ISOC_AMS">class <strong>ISOC_AMS</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
     
 <tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
-<td colspan=2><tt><a href="#ISOC_AMS">ISOC_AMS</a>(user:&nbsp;str,&nbsp;password:&nbsp;str,&nbsp;logfile:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;&amp;lt;_io.TextIOWrapper&nbsp;name='&amp;lt;stdout&amp;gt;'&nbsp;mode='w'&nbsp;encoding='utf-8'&amp;gt;,&nbsp;debuglog:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;None,&nbsp;headless:&nbsp;bool&nbsp;=&nbsp;True,&nbsp;dryrun:&nbsp;bool&nbsp;=&nbsp;False)<br>
+<td colspan=2><tt><a href="#ISOC_AMS">ISOC_AMS</a>(user:&nbsp;str,&nbsp;password:&nbsp;str,&nbsp;logfile:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;&amp;lt;_io.TextIOWrapper&nbsp;name='&amp;lt;stdout&amp;gt;'&nbsp;mode='w'&nbsp;encoding='utf-8'&amp;gt;,&nbsp;debuglog:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;None,&nbsp;headless:&nbsp;bool&nbsp;=&nbsp;True,&nbsp;dryrun:&nbsp;bool&nbsp;=&nbsp;False,&nbsp;driver:&nbsp;str&nbsp;=&nbsp;'firefox',&nbsp;offline:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;None,&nbsp;export:&nbsp;io.TextIOBase&nbsp;|&nbsp;str&nbsp;|&nbsp;None&nbsp;=&nbsp;None)<br>
 &nbsp;<br>
 Perform&nbsp;admin&nbsp;operations&nbsp;on&nbsp;a&nbsp;Chaper's&nbsp;members&nbsp;list&nbsp;stored&nbsp;in&nbsp;AMS.<br>
 &nbsp;<br>
@@ -138,7 +154,7 @@ DESCRIPTION<br>
 &nbsp;<br>
 &nbsp;&nbsp;&nbsp;&nbsp;This&nbsp;is&nbsp;the&nbsp;main&nbsp;class&nbsp;to&nbsp;interface&nbsp;with&nbsp;the&nbsp;ISOC-AMS&nbsp;system.<br>
 &nbsp;<br>
-&nbsp;&nbsp;&nbsp;&nbsp;By&nbsp;default&nbsp;all&nbsp;operations&nbsp;run&nbsp;headless.&nbsp;If&nbsp;you&nbsp;want&nbsp;to&nbsp;follow&nbsp;it&nbsp;on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;self.<strong>_Selenium</strong>.By&nbsp;default&nbsp;all&nbsp;operations&nbsp;run&nbsp;headless.&nbsp;If&nbsp;you&nbsp;want&nbsp;to&nbsp;follow&nbsp;it&nbsp;on<br>
 &nbsp;&nbsp;&nbsp;&nbsp;a&nbsp;browser&nbsp;window&nbsp;use&nbsp;headless=False.<br>
 &nbsp;<br>
 ARGUMENTS<br>
@@ -147,9 +163,14 @@ ARGUMENTS<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logfile:&nbsp;where&nbsp;to&nbsp;write&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;info-log&nbsp;output<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;debuglog:&nbsp;where&nbsp;to&nbsp;write&nbsp;<a href="#ISOC_AMS">ISOC_AMS</a>&nbsp;debug-level&nbsp;log&nbsp;output<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;headless:&nbsp;run&nbsp;without&nbsp;GUI<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dryrun:&nbsp;only&nbsp;check&nbsp;input,&nbsp;no&nbsp;actions<br>&nbsp;</tt></td></tr>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;driver:&nbsp;Name&nbsp;of&nbsp;SELENIUM&nbsp;driver<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;dryrun:&nbsp;only&nbsp;check&nbsp;input,&nbsp;no&nbsp;actions<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;offline:&nbsp;read&nbsp;data&nbsp;from&nbsp;file&nbsp;instead&nbsp;of&nbsp;AMS&nbsp;database<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;export:&nbsp;write&nbsp;data&nbsp;from&nbsp;AMS&nbsp;database&nbsp;to&nbsp;file&nbsp;and&nbsp;exit<br>&nbsp;</tt></td></tr>
 <tr><td>&nbsp;</td>
 <td width="100%">Methods defined here:<br>
+<dl><dt><a name="ISOC_AMS-__init__"><strong>__init__</strong></a>(self, user: str, password: str, logfile: io.TextIOBase | str | None = &lt;_io.TextIOWrapper name='&lt;stdout&gt;' mode='w' encoding='utf-8'&gt;, debuglog: io.TextIOBase | str | None = None, headless: bool = True, dryrun: bool = False, driver: str = 'firefox', offline: io.TextIOBase | str | None = None, export: io.TextIOBase | str | None = None)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
 <dl><dt><a name="ISOC_AMS-approve_pending_applications"><strong>approve_pending_applications</strong></a>(self, approve_list: list | dict | str | int)</dt><dd><tt>Approve&nbsp;pending&nbsp;Members&nbsp;as&nbsp;Chapter&nbsp;members.<br>
 &nbsp;<br>
 DESCRIPTION<br>
@@ -241,6 +262,28 @@ RETURNS<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;---------------------------------------------<br>
 ISOC-ID&nbsp;are&nbsp;used&nbsp;as&nbsp;keys&nbsp;for&nbsp;the&nbsp;entries</tt></dd>
 </dl>
+<hr>
+Data descriptors defined here:<br>
+<dl><dt><strong>__dict__</strong></dt>
+<dd><tt>dictionary&nbsp;for&nbsp;instance&nbsp;variables&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+<dl><dt><strong>__weakref__</strong></dt>
+<dd><tt>list&nbsp;of&nbsp;weak&nbsp;references&nbsp;to&nbsp;the&nbsp;object&nbsp;(if&nbsp;defined)</tt></dd>
+</dl>
+</td></tr></table> <p>
+<table width="100%" cellspacing=0 cellpadding=2 border=0 summary="section">
+<tr bgcolor="#ffc8d8">
+<td colspan=3 valign=bottom>&nbsp;<br>
+<font color="#000000" face="helvetica, arial"><a name="SeleniumStuff">class <strong>SeleniumStuff</strong></a>(<a href="builtins.html#object">builtins.object</a>)</font></td></tr>
+    
+<tr bgcolor="#ffc8d8"><td rowspan=2><tt>&nbsp;&nbsp;&nbsp;</tt></td>
+<td colspan=2><tt><a href="#SeleniumStuff">SeleniumStuff</a>(webdriver_name=None)<br>
+&nbsp;<br>
+<br>&nbsp;</tt></td></tr>
+<tr><td>&nbsp;</td>
+<td width="100%">Methods defined here:<br>
+<dl><dt><a name="SeleniumStuff-__init__"><strong>__init__</strong></a>(self, webdriver_name=None)</dt><dd><tt>Initialize&nbsp;self.&nbsp;&nbsp;See&nbsp;help(type(self))&nbsp;for&nbsp;accurate&nbsp;signature.</tt></dd></dl>
+
 <hr>
 Data descriptors defined here:<br>
 <dl><dt><strong>__dict__</strong></dt>

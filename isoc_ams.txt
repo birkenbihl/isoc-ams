@@ -40,16 +40,22 @@ DESCRIPTION
         ISOC_AMS will log you in to ISOC.ORG and check your authorization at
         instantiation.
     
+    
+        To select a SELENIUM webdriver, the --driver argument can be used.
+        --driver=chrome
+    
+        Default is firefox. Only firefox and chrome are allowed for now.
+    
+    
+    DEPRECATED
         To select a webdriver, an ISOC_AMS_WEBDRIVER environment variable can be used.
         E.g.
             ISOC_AMS_WEBDRIVER=Firefox
     
-        Default is Firefox. Only Firefox and Chrome are allowed for now.
-    
     FUNCTIONS
         3 functions are provided to support logging:
             log, dlog, strong_message
-        (see below)
+        (see below)ISOC_AMS_WEBDRIVER
     
     EXAMPLE
     
@@ -85,13 +91,26 @@ DESCRIPTION
         Version 0.1.0
             Improved logging
             minor bug fixes
+        Version 0.1.1
+            minor bug fixes
+        Version 0.1.2
+            eliminate not required checks in difference_from_expected()
+        Version 0.1.3
+            tolerance against refused information e.g.members lists
+        Version 0.1.4
+            minor fixes
+        Version 0.1.5
+            minor fixes
+        Version 1.0
+            add export / import, SELENIUM driver can be argument
 
 CLASSES
     builtins.object
         ISOC_AMS
+        SeleniumStuff
     
     class ISOC_AMS(builtins.object)
-     |  ISOC_AMS(user: str, password: str, logfile: io.TextIOBase | str | None = <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>, debuglog: io.TextIOBase | str | None = None, headless: bool = True, dryrun: bool = False)
+     |  ISOC_AMS(user: str, password: str, logfile: io.TextIOBase | str | None = <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>, debuglog: io.TextIOBase | str | None = None, headless: bool = True, dryrun: bool = False, driver: str = 'firefox', offline: io.TextIOBase | str | None = None, export: io.TextIOBase | str | None = None)
      |  
      |  Perform admin operations on a Chaper's members list stored in AMS.
      |  
@@ -99,7 +118,7 @@ CLASSES
      |  
      |      This is the main class to interface with the ISOC-AMS system.
      |  
-     |      By default all operations run headless. If you want to follow it on
+     |      self._Selenium.By default all operations run headless. If you want to follow it on
      |      a browser window use headless=False.
      |  
      |  ARGUMENTS
@@ -108,11 +127,14 @@ CLASSES
      |          logfile: where to write ISOC_AMS info-log output
      |          debuglog: where to write ISOC_AMS debug-level log output
      |          headless: run without GUI
+     |          driver: Name of SELENIUM driver
      |          dryrun: only check input, no actions
+     |          offline: read data from file instead of AMS database
+     |          export: write data from AMS database to file and exit
      |  
      |  Methods defined here:
      |  
-     |  __init__(self, user: str, password: str, logfile: io.TextIOBase | str | None = <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>, debuglog: io.TextIOBase | str | None = None, headless: bool = True, dryrun: bool = False)
+     |  __init__(self, user: str, password: str, logfile: io.TextIOBase | str | None = <_io.TextIOWrapper name='<stdout>' mode='w' encoding='utf-8'>, debuglog: io.TextIOBase | str | None = None, headless: bool = True, dryrun: bool = False, driver: str = 'firefox', offline: io.TextIOBase | str | None = None, export: io.TextIOBase | str | None = None)
      |      Initialize self.  See help(type(self)) for accurate signature.
      |  
      |  approve_pending_applications(self, approve_list: list | dict | str | int)
@@ -219,6 +241,23 @@ CLASSES
      |  
      |  __weakref__
      |      list of weak references to the object (if defined)
+    
+    class SeleniumStuff(builtins.object)
+     |  SeleniumStuff(webdriver_name=None)
+     |  
+     |  Methods defined here:
+     |  
+     |  __init__(self, webdriver_name=None)
+     |      Initialize self.  See help(type(self)) for accurate signature.
+     |  
+     |  ----------------------------------------------------------------------
+     |  Data descriptors defined here:
+     |  
+     |  __dict__
+     |      dictionary for instance variables (if defined)
+     |  
+     |  __weakref__
+     |      list of weak references to the object (if defined)
 
 FUNCTIONS
     dlog(*args, date: bool = True)
@@ -241,7 +280,7 @@ FUNCTIONS
                 date: if False ommit time and level info in logrecord
 
 VERSION
-    0.1.0
+    1.0.0
 
 FILE
     /home/klaus/bin/python/isoc-ams/isoc_ams.py
