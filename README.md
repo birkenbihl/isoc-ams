@@ -25,7 +25,7 @@ Consequently isoc-ams provides methods for the following tasks:
 1. approve ISOC AMS applications
 1. deny ISOC AMS applications
 1. delete members from ISOC AMS Chapters Member list
-1. add members to  ISOC AMS Chapters Member list (Chapter admins are not authorized to do this. So the author suggests to write a mail to ams-support.)
+1. ~~add members to ISOC AMS Chapters Member list~~ (Chapter admins are not authorized to do this). Make a list of members missing on ISOC AMS Chapters Member list.
 
 Don't forget: it takes time and you may see many kinds of errors. Often the cure is "try again later". Any expectation of flawless is not appropriate.
 Anyhow, after running it some time now it seems to work better than expected.
