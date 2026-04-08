@@ -146,7 +146,6 @@ def main(
          driver='firefox'):
 
     global ams
-
     ams = ISOC_AMS(
                    *isoc_de.ams_credentials,
                    headless=headless,
@@ -321,7 +320,7 @@ def main(
                                          date=False)
         else:
             isoc_ams.log(r)
-    else: ams.strong_msg("Results cannot be verified due to previous errors", level=logging.ERROR)
+    else: isoc_ams.strong_msg("Results cannot be verified due to previous errors", level=logging.ERROR)
 
 if __name__ == "__main__":
     import sys
@@ -334,7 +333,7 @@ if __name__ == "__main__":
 
     parser.add_argument("-h", "--head", help='show browser window', action='store_true')
     parser.add_argument("-d", "--dryrun", help='just run without modifying any data', action='store_true')
-    parser.add_argument("--debuglog", help='file for detailed log')
+    parser.add_argument("--debuglog", default=logfile, help='file for detailed log')
     parser.add_argument("--logfile", help='file for log', default="stdout")
     parser.add_argument("-e", "--export", help='output AMS data to this JSON file and exit')
     parser.add_argument("-o", "--offline", help='read (fake) AMS data from this JSON file and run dry')
