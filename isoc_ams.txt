@@ -101,8 +101,10 @@ DESCRIPTION
             minor fixes
         Version 0.1.5
             minor fixes
-        Version 1.0
+        Version 1.0.1
             add export / import, SELENIUM driver can be argument
+        Version 1.0.2
+            on the reports page use All reports - just in case no recent reports are shown
 
 CLASSES
     builtins.object
@@ -280,7 +282,7 @@ FUNCTIONS
                 date: if False ommit time and level info in logrecord
 
 VERSION
-    1.0.0
+    1.0.2
 
 FILE
     /home/klaus/bin/python/isoc-ams/isoc_ams.py
