@@ -103,9 +103,10 @@ CHANGELOG
         minor fixes
     Version 1.0.1
         add export / import, SELENIUM driver can be argument
-
+    Version 1.0.2
+        on the reports page use All reports - just in case no recent reports are shown
 """
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 
 
 from datetime import datetime
@@ -709,11 +710,13 @@ class _ISOC_AMS():
         log(date=False)
 
         # get lists (in an extra "reports" tab)
-        self.reports_link = reports_ref.get_attribute('href')
-        # self.reports_link = "https://community.internetsociety.org/leader/s/report/Report/Recent/"
+        # self.reports_link = reports_ref.get_attribute('href')
+        #
+        # v 1.0.2 on the reports page use All reports - just in case no Recent reports are shown
+        #
+        self.reports_link = "https://community.internetsociety.org/leader/s/report/Report/Recent/Report/?queryScope=everything"
         self.group_application_link = group_application_ref.get_attribute('href')
-        self.reports_page_ready = (self.Selenium.EC.element_to_be_clickable,
-                                   "//table//lightning-button//button")
+        # ?? self.reports_page_ready = (self.Selenium.EC.element_to_be_clickable, "//table//lightning-button//button")
 #
 #   functions to aquire data
 #
