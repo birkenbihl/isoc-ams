@@ -105,8 +105,10 @@ CHANGELOG
         add export / import, SELENIUM driver can be argument
     Version 1.0.2
         on the reports page use All reports - just in case no recent reports are shown
+    Version 1.0.3
+        handle empty "pendings" list
 """
-__version__ = "1.0.2"
+__version__ = "1.0.3"
 
 
 from datetime import datetime
@@ -873,6 +875,7 @@ class _ISOC_AMS():
             else:
                 dlog("records collected / total", len(data), " /", total)
                 return data
+        return data
 
     def get_members(self, rows, members):
         for row in rows:
