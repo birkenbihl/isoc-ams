@@ -1,7 +1,11 @@
 
 # isoc-ams
 
-A Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their own Chapter Database with AMS (semi)automatically.
+## 😾🙀😿 Sorry ...
+This version of isoc-ams has stopped working since the end of May 2026. ISOC had the brilliant idea of ​​protecting its login page with a CAPTCHA against *malicious bots*. Unfortunately, the CAPTCHA also excludes *benevolent bots* like isoc-ams. Why ISOC is doing this remains unclear. The internet offers many tips on how to bypass CAPTCHAs — and AI makes it even easier. Of course, these tricks also work for the Cloudflare CAPTCHA installed by ISOC — but for now they are not being implemented in the released version.
+
+## isoc-ams
+a Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their own Chapter Database with AMS (semi)automatically.
 
 After 10 years+  of sorrow, millions minutes of waiting for answers from the AMS web interface, tons of useless clicks, many (in fact) rejected requests to provide an API access: the author decided to build an API himself. Even if it might not be more than a demonstrator for the functionality needed. Anyhow (see below): for now it is running on a weekly basis doing a great job in avoiding manual work. 
 
