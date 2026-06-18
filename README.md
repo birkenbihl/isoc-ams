@@ -2,7 +2,7 @@
 # isoc-ams
 
 ## 😾🙀😿 Sorry ...
-This version of isoc-ams has stopped working since the end of May 2026. ISOC had the brilliant idea of ​​protecting its login page with a CAPTCHA against *malicious bots*. Unfortunately, the CAPTCHA also excludes *benevolent bots* like isoc-ams. Why ISOC is doing this remains unclear. The internet offers many tips on how to bypass CAPTCHAs — and AI makes it even easier. Of course, these tricks also work for the Cloudflare CAPTCHA installed by ISOC — but for now they are not being implemented in the released version.
+This version of isoc-ams has stopped working since the end of May 2026. ISOC had the brilliant idea of ​​protecting its login page with a CAPTCHA against *malicious bots*. Unfortunately, the CAPTCHA also excludes *benevolent bots* like isoc-ams. Why ISOC is doing this remains unclear. The internet offers many tips on how to bypass CAPTCHAs — and AI makes it even easier. Of course, these tricks also work for the Cloudflare CAPTCHA installed by ISOC — but for now they are not being implemented in this released version of isoc-ams.
 
 ## isoc-ams
 a Python Interface to access the 'Advanced Members Administration System' (AMS) of the 'Internet Society' (ISOC). This is especially useful for ISOC Chapter Admins who want to synchronize their own Chapter Database with AMS (semi)automatically.
